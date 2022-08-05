@@ -1,14 +1,21 @@
 #include "Vacuole.hpp"
 #include "Bacteria.hpp"
 
+#include <iostream>
+#include <memory>
+#include <random>
+#include <functional>
+#include "IEntity.hpp"
+#include "IConfig.hpp"
+
+#include "IManager.hpp"
+#include "Manager.hpp"
+using namespace Evolution::Utility;
+
 int main()
 {
-    Evolution::IEntity *entity;
-
-    entity = new Evolution::Food::Vacuole();
-    entity->Spawn();
-    entity = new Evolution::Organism::Bacteria();
-    entity->Spawn();
-
-    return 0;
+    srand(time(nullptr));
+    Evolution::Manager::Manager obj;
+    obj.Init();
+    obj.RunGameLoop();
 }

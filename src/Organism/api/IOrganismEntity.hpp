@@ -3,6 +3,7 @@
 
 #include "IEntity.hpp"
 #include "IConfig.hpp"
+#include <memory>
 
 namespace Evolution
 {
@@ -24,10 +25,13 @@ namespace Evolution
             Resolution m_energy{0};
         };
 
-        class IOrganismEntity : public IEntity
+        class IOrganismEntity : public CEntityWrapper<sf::CircleShape>
         {
         public:
-            Attributes GetAttributes() const;
+            Attributes GetAttributes() const
+            {
+                return m_attributes;
+            }
 
         protected:
             void OnEncounter();

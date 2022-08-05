@@ -31,6 +31,10 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/Food/inc/
     ${CMAKE_SOURCE_DIR}/src/Organism/api/
     ${CMAKE_SOURCE_DIR}/src/Organism/inc
+    ${CMAKE_SOURCE_DIR}/src/Manager/api/
+    ${CMAKE_SOURCE_DIR}/src/Manager/inc
+    ${CMAKE_SOURCE_DIR}/src/Behaviour/api/
+    ${CMAKE_SOURCE_DIR}/src/Behaviour/inc
 )
 
 link_directories(
