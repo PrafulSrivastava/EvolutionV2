@@ -4,6 +4,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include "IConfig.hpp"
+#include "Utility.hpp"
 
 #ifdef UNIT_TEST
 #include <gtest/gtest.h>
@@ -15,7 +16,8 @@ namespace Evolution
     {
         INVALID = 200,
         VACOULE = 0,
-        BACTERIA = 1
+        BACTERIA = 1,
+        ALGAE = 2
     };
 
     template <typename Entity>
@@ -36,6 +38,11 @@ namespace Evolution
         virtual void Spawn();
         virtual void Destroy();
         virtual void RunMainLoop();
+
+        Species GetSpecies()
+        {
+            return m_species;
+        }
 
     protected:
         int32_t m_Id{};

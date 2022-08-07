@@ -33,6 +33,21 @@ namespace Evolution
 
     }
 
+    namespace Position
+    {
+        constexpr auto MIN_VALUE = 300;
+        constexpr auto MAX_VALUE = 700;
+
+        constexpr auto MIN_OFFSET = 30;
+        constexpr auto MAX_OFFSET = 300;
+    }
+
+    namespace General
+    {
+        constexpr auto MIN_POPULATION = 1;
+        constexpr auto MAX_POPULATION = 20;
+    }
+
 }
 
 #endif

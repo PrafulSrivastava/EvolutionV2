@@ -25,6 +25,8 @@ namespace Evolution::Manager
 
     private:
         bool IsInVision(std::shared_ptr<Evolution::Behaviour::IBehaviourEntity> viewer, std::shared_ptr<Evolution::Behaviour::IBehaviourEntity> viewee);
+        bool HasCollided(std::shared_ptr<Evolution::Behaviour::IBehaviourEntity> viewer, std::shared_ptr<Evolution::Behaviour::IBehaviourEntity> viewee);
+
         std::vector<std::shared_ptr<Evolution::Behaviour::IBehaviourEntity>> m_organisms;
     };
 }

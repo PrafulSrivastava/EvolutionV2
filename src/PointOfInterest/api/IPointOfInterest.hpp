@@ -16,7 +16,7 @@
 
 //         struct Attributes
 //         {
-//             Resolution m_speed{0};
+//             Resolution Speed{0};
 //             Resolution m_vision{0};
 //             Resolution m_stamina{0};
 //             Resolution m_energy{0};

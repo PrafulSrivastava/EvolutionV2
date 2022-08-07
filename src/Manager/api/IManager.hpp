@@ -5,6 +5,7 @@
 #include "IConfig.hpp"
 #include <SFML/Graphics.hpp>
 #include <memory>
+#include "Reaction.hpp"
 
 namespace Evolution
 {

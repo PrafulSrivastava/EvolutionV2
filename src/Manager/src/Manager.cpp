@@ -1,7 +1,8 @@
 #include "Manager.hpp"
 #include "IConfig.hpp"
 #include "Bacteria.hpp"
-#include "Carnivore.hpp"
+#include "Algae.hpp"
+#include "BehaviourHandler.hpp"
 #include <math.h>
 
 namespace Evolution::Manager
@@ -14,6 +15,7 @@ namespace Evolution::Manager
 
     bool Manager::IsInVision(std::shared_ptr<Evolution::Behaviour::IBehaviourEntity> viewer, std::shared_ptr<Evolution::Behaviour::IBehaviourEntity> viewee)
     {
+        // TODO: Need to add Matrix logic
         bool inVision = false;
         auto viewerPos = viewer->GetEntity()->getPosition();
         auto vieweePos = viewee->GetEntity()->getPosition();
@@ -26,14 +28,27 @@ namespace Evolution::Manager
         return inVision;
     }
 
+    bool Manager::HasCollided(std::shared_ptr<Evolution::Behaviour::IBehaviourEntity> viewer, std::shared_ptr<Evolution::Behaviour::IBehaviourEntity> viewee)
+    {
+        // TODO
+        return false;
+    }
+
     void Manager::Init()
     {
-        std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::Bacteria>();
+        std::shared_ptr<Evolution::Organism::IOrganismEntity> org1 = std::make_shared<Evolution::Organism::Bacteria>();
+        std::shared_ptr<Evolution::Organism::IOrganismEntity> org2 = std::make_shared<Evolution::Organism::Algae>();
 
-        std::shared_ptr<Evolution::Behaviour::IBehaviourEntity>
-            bacteria = std::make_shared<Evolution::Behaviour::Carnivore>(org);
+        std::shared_ptr<Evolution::Behaviour::IBehaviourEntity> bacteria;
+        std::shared_ptr<Evolution::Behaviour::IBehaviourEntity> algae;
 
-        AddEntity(bacteria);
+        for (int i = 0; i < 1; i++)
+        {
+            bacteria = std::make_shared<Evolution::Behaviour::BehaviourHandler>(org1);
+            AddEntity(bacteria);
+            algae = std::make_shared<Evolution::Behaviour::BehaviourHandler>(org2);
+            AddEntity(algae);
+        }
     }
 
     void Manager::AddEntity(std::shared_ptr<Evolution::Behaviour::IBehaviourEntity> org)
@@ -56,6 +71,11 @@ namespace Evolution::Manager
                 if (IsInVision(m_organisms[i], m_organisms[j]))
                 {
                     m_organisms[i]->OnEncounter(m_organisms[j]->GetEntity());
+                }
+
+                if (HasCollided(m_organisms[i], m_organisms[j]))
+                {
+                    m_organisms[i]->OnCollision(m_organisms[j]->GetEntity());
                 }
             }
         }

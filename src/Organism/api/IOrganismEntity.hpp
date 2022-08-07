@@ -17,12 +17,25 @@ namespace Evolution
             OMNIVORE = 2
         };
 
+        enum class MessageType : uint8_t
+        {
+            INVALID = 254,
+
+            GROUP = 1
+        };
+
         struct Attributes
         {
-            Resolution m_speed{0};
-            Resolution m_vision{0};
-            Resolution m_stamina{0};
-            Resolution m_energy{0};
+            Resolution speed{0};
+            Resolution visionConeAngle{0};
+            Resolution visionDepth{0};
+            Resolution stamina{0};
+            Resolution energy{0};
+            Resolution socializing{0};
+            Resolution aggression{0};
+
+            OrganismType type;
+            MessageType message;
         };
 
         class IOrganismEntity : public CEntityWrapper<sf::CircleShape>
