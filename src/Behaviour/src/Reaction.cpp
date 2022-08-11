@@ -10,18 +10,18 @@ namespace Evolution
             return react;
         }
 
-        ReactionType Reaction::React(std::shared_ptr<Evolution::Organism::IOrganismEntity> organism, std::shared_ptr<Evolution::Organism::IOrganismEntity> target)
+        ReactionType Reaction::React(Evolution::Organism::Attributes organismAttributes, Evolution::Organism::Attributes targetAttributes)
         {
-            auto attr = organism->GetAttributes();
+
             ReactionType react;
-            switch (attr.type)
+            switch (organismAttributes.type)
             {
             case Evolution::Organism::OrganismType::CARNIVORE:
-                react = Carnivore(attr, target->GetAttributes());
+                react = Carnivore(organismAttributes, targetAttributes);
                 break;
 
             case Evolution::Organism::OrganismType::HERBIVORE:
-                react = Herbivore(attr, target->GetAttributes());
+                react = Herbivore(organismAttributes, targetAttributes);
                 break;
 
             default:
@@ -32,9 +32,9 @@ namespace Evolution
             return react;
         }
 
-        ReactionType Reaction::Carnivore(Evolution::Organism::Attributes organism, Evolution::Organism::Attributes target)
+        ReactionType Reaction::Carnivore(Evolution::Organism::Attributes organismAttributes, Evolution::Organism::Attributes targetAttributes)
         {
-            if (target.type == organism.type)
+            if (targetAttributes.type == organismAttributes.type)
             {
             }
             else
@@ -44,11 +44,11 @@ namespace Evolution
             return ReactionType::IGNORE;
         }
 
-        ReactionType Reaction::Herbivore(Evolution::Organism::Attributes organism, Evolution::Organism::Attributes target)
+        ReactionType Reaction::Herbivore(Evolution::Organism::Attributes organismAttributes, Evolution::Organism::Attributes targetAttributes)
         {
-            if (target.type == Evolution::Organism::OrganismType::CARNIVORE)
+            if (targetAttributes.type == Evolution::Organism::OrganismType::CARNIVORE)
             {
-                if (organism.energy < target.energy)
+                if (organismAttributes.energy < targetAttributes.energy)
                     return ReactionType::RUN;
 
                 else

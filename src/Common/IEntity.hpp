@@ -4,7 +4,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include "IConfig.hpp"
-#include "Utility.hpp"
+#include "CUtility.hpp"
 
 #ifdef UNIT_TEST
 #include <gtest/gtest.h>
@@ -24,7 +24,7 @@ namespace Evolution
     class CEntityWrapper : public Entity
     {
     public:
-        CEntityWrapper(float directionOfPerpendicular = 0);
+        CEntityWrapper();
         ~CEntityWrapper() = default;
         CEntityWrapper(const CEntityWrapper &) = default;
         CEntityWrapper &operator=(const CEntityWrapper &) = default;
@@ -47,7 +47,6 @@ namespace Evolution
     protected:
         int32_t m_Id{};
         Evolution::shortBool m_isActive;
-        float m_directionOfPerpendicular;
         sf::Vector2f m_coordinates;
         Species m_species;
 
@@ -63,8 +62,8 @@ namespace Evolution
     };
 
     template <typename Entity>
-    CEntityWrapper<Entity>::CEntityWrapper(float directionOfPerpendicular)
-        : m_Id(0), m_directionOfPerpendicular(directionOfPerpendicular)
+    CEntityWrapper<Entity>::CEntityWrapper()
+        : m_Id(0)
     {
         m_isActive.set(0);
     }

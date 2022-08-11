@@ -2,7 +2,8 @@
 #define MANAGER_HPP
 
 #include "IManager.hpp"
-#include "IBehaviourEntity.hpp"
+#include "IBehaviourHandler.hpp"
+#include "IMovement.hpp"
 #include <vector>
 #include <memory>
 
@@ -20,14 +21,16 @@ namespace Evolution::Manager
 
         void RunMainLoop();
         void RunGameLoop();
-        void AddEntity(std::shared_ptr<Evolution::Behaviour::IBehaviourEntity>);
+        void AddEntity(std::shared_ptr<Evolution::Organism::IOrganismEntity>);
         void Init();
 
     private:
-        bool IsInVision(std::shared_ptr<Evolution::Behaviour::IBehaviourEntity> viewer, std::shared_ptr<Evolution::Behaviour::IBehaviourEntity> viewee);
-        bool HasCollided(std::shared_ptr<Evolution::Behaviour::IBehaviourEntity> viewer, std::shared_ptr<Evolution::Behaviour::IBehaviourEntity> viewee);
+        bool IsInVision(std::shared_ptr<Evolution::Organism::IOrganismEntity> viewer, std::shared_ptr<Evolution::Organism::IOrganismEntity> viewee);
+        bool HasCollided(std::shared_ptr<Evolution::Organism::IOrganismEntity> viewer, std::shared_ptr<Evolution::Organism::IOrganismEntity> viewee);
 
-        std::vector<std::shared_ptr<Evolution::Behaviour::IBehaviourEntity>> m_organisms;
+        std::vector<std::shared_ptr<Evolution::Organism::IOrganismEntity>> m_organisms;
+
+        std::shared_ptr<IMovement> m_movement;
     };
 }
 

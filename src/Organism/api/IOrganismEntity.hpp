@@ -2,6 +2,7 @@
 #define IORGANISMENTITY_HPP
 
 #include "IEntity.hpp"
+#include "IBehaviourHandler.hpp"
 #include "IConfig.hpp"
 #include <memory>
 
@@ -9,48 +10,35 @@ namespace Evolution
 {
     namespace Organism
     {
-        enum class OrganismType : uint8_t
-        {
-            INVALID = 254,
-            HERBIVORE = 0,
-            CARNIVORE = 1,
-            OMNIVORE = 2
-        };
-
-        enum class MessageType : uint8_t
-        {
-            INVALID = 254,
-
-            GROUP = 1
-        };
-
-        struct Attributes
-        {
-            Resolution speed{0};
-            Resolution visionConeAngle{0};
-            Resolution visionDepth{0};
-            Resolution stamina{0};
-            Resolution energy{0};
-            Resolution socializing{0};
-            Resolution aggression{0};
-
-            OrganismType type;
-            MessageType message;
-        };
 
         class IOrganismEntity : public CEntityWrapper<sf::CircleShape>
         {
         public:
-            Attributes GetAttributes() const
+            std::shared_ptr<Attributes> GetAttributes() const
             {
                 return m_attributes;
             }
 
+            void OnCollision(Attributes targetAttributes)
+            {
+                m_behaviour->OnCollision(targetAttributes);
+            }
+
+            void OnEncounter(Attributes orgAttributes, Attributes targetAttributes)
+            {
+                // auto reaction = Reaction::GetInstance().React(m_organism, organismEncountered);
+
+                // // Need to replace with priority queue
+                // m_organismsInView.push_back({reaction, organismEncountered});
+                // m_hasNewPoi = true;
+                m_behaviour->OnEncounter(orgAttributes, targetAttributes);
+            }
+
         protected:
             void OnEncounter();
-
-            Attributes m_attributes;
-            OrganismType m_foodType;
+            std::shared_ptr<Evolution::Behaviour::IBehaviourHandler> m_behaviour;
+            std::shared_ptr<Attributes> m_attributes;
+            OrganismType m_type;
         };
     }
 }
