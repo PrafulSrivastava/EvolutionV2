@@ -21,7 +21,7 @@ namespace Evolution::Organism
         m_behaviour->RegisterForReaction(std::bind(&Algae::OnReaction, this, std::placeholders::_1));
     }
 
-    void Algae::SetEntityId(NFResolution id)
+    void Algae::SetEntityId(NFResolution32 id)
     {
         m_attributes->id = id;
     }

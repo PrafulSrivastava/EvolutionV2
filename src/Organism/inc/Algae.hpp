@@ -16,7 +16,7 @@ namespace Evolution::Organism
         Algae(Algae &&) = default;
         Algae &operator=(Algae &&) = default;
 
-        void SetEntityId(NFResolution) override;
+        void SetEntityId(NFResolution32) override;
         void Spawn() override;
         void Destroy() override;
         void RunMainLoop() override;

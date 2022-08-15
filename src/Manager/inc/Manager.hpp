@@ -6,6 +6,8 @@
 #include "IOrganismEntity.hpp"
 #include <vector>
 #include <memory>
+#include "EntityMatrix.hpp"
+
 namespace Evolution::Manager
 {
     class Manager : public IManager
@@ -28,10 +30,8 @@ namespace Evolution::Manager
         bool IsInVision(std::shared_ptr<Evolution::Organism::IOrganismEntity> viewer, std::shared_ptr<Evolution::Organism::IOrganismEntity> viewee);
         bool HasCollided(std::shared_ptr<Evolution::Organism::IOrganismEntity> viewer, std::shared_ptr<Evolution::Organism::IOrganismEntity> viewee);
 
-        std::vector<std::shared_ptr<Evolution::Organism::IOrganismEntity>> m_organisms;
-
         std::shared_ptr<IMovement> m_movement{nullptr};
-        NFResolution m_ids{-1};
+        std::shared_ptr<EntityMatrix> m_matrix{nullptr};
     };
 }
 

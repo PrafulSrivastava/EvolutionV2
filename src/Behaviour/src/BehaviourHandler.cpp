@@ -8,12 +8,12 @@ namespace Evolution::Behaviour
         m_type = type;
     }
 
-    NFResolution BehaviourHandler::FindClosestOrganism(sf::Vector2f orgPos)
+    NFResolution32 BehaviourHandler::FindClosestOrganism(sf::Vector2f orgPos)
     {
         std::lock_guard<std::mutex> lck(m_mtx);
 
         Resolution minDist = INT32_MAX;
-        NFResolution result;
+        NFResolution32 result;
 
         for (auto &it : m_organismsInView)
         {

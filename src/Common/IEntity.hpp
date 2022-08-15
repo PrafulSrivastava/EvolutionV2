@@ -30,8 +30,8 @@ namespace Evolution
         CEntityWrapper(CEntityWrapper &&) = default;
         CEntityWrapper &operator=(CEntityWrapper &&) = default;
 
-        NFResolution GetEntityId();
-        virtual void SetEntityId(NFResolution id);
+        NFResolution32 GetEntityId();
+        virtual void SetEntityId(NFResolution32 id);
         bool IsAlive();
         void SetLiveStatus(bool);
         virtual void OnCollision(Species);
@@ -45,7 +45,7 @@ namespace Evolution
         }
 
     protected:
-        NFResolution m_Id{-1};
+        NFResolution32 m_Id{-1};
         Evolution::shortBool m_isActive{0};
         sf::Vector2f m_coordinates;
         Species m_species{Species::INVALID};
@@ -75,7 +75,7 @@ namespace Evolution
     }
 
     template <typename Entity>
-    void CEntityWrapper<Entity>::SetEntityId(NFResolution id)
+    void CEntityWrapper<Entity>::SetEntityId(NFResolution32 id)
     {
         m_Id = id;
     }
@@ -87,7 +87,7 @@ namespace Evolution
     }
 
     template <typename Entity>
-    NFResolution CEntityWrapper<Entity>::GetEntityId()
+    NFResolution32 CEntityWrapper<Entity>::GetEntityId()
     {
         return m_Id;
     }

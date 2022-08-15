@@ -20,7 +20,7 @@ namespace Evolution::Organism
         m_behaviour->RegisterForReaction(std::bind(&Bacteria::OnReaction, this, std::placeholders::_1));
     }
 
-    void Bacteria::SetEntityId(NFResolution id)
+    void Bacteria::SetEntityId(NFResolution32 id)
     {
         m_attributes->id = id;
     }

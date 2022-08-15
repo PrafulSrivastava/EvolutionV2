@@ -15,16 +15,16 @@ namespace Evolution::Manager
         int steps;
         int hemisphere;
         int quadrant;
-        std::shared_ptr<Evolution::Organism::IOrganismEntity> organism;
+        NFResolution32 organismId;
     };
 
     class IMovement
     {
     public:
-        virtual int16_t RegisterToMove(std::shared_ptr<Evolution::Organism::IOrganismEntity>, Evolution::Movement::MovementType) = 0;
-        virtual void UpdateMovement(int16_t, Evolution::Movement::MovementType) = 0;
-        virtual void UpdateMovementOperation(int16_t, Evolution::Movement::MovementOperation) = 0;
-        virtual void UnRegisterToMove(int16_t) = 0;
+        virtual NFResolution16 RegisterToMove(NFResolution32, Evolution::Movement::MovementType) = 0;
+        virtual void UpdateMovement(NFResolution16, Evolution::Movement::MovementType) = 0;
+        virtual void UpdateMovementOperation(NFResolution16, Evolution::Movement::MovementOperation) = 0;
+        virtual void UnRegisterToMove(NFResolution16) = 0;
         virtual void Move() = 0;
         virtual void MoveToPoint(sf::Vector2f) = 0;
     };

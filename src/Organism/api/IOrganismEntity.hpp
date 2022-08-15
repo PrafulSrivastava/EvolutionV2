@@ -38,7 +38,7 @@ namespace Evolution
                 m_reactionChanged = true;
             }
 
-            NFResolution GetEntityId()
+            NFResolution32 GetEntityId()
             {
                 return m_attributes->id;
             }

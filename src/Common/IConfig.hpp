@@ -8,7 +8,9 @@
 namespace Evolution
 {
     using Resolution = float;
-    using NFResolution = int32_t;
+    using NFResolution32 = int32_t;
+    using NFResolution16 = int16_t;
+
     using shortBool = std::bitset<1>;
 
     namespace Nutrition
@@ -103,7 +105,7 @@ namespace Evolution
             Resolution energy{0};
             Resolution socializing{0};
             Resolution aggression{0};
-            NFResolution id;
+            NFResolution32 id;
             sf::Vector2f position;
 
             OrganismType type;

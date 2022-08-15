@@ -14,7 +14,8 @@ namespace Evolution::Manager
         m_window = std::make_shared<sf::RenderWindow>(
             sf::VideoMode(Evolution::Utility::Width, Evolution::Utility::Height), Evolution::Utility::WindowName);
         CUtility::Init(m_window);
-        m_movement = std::make_shared<Movement>();
+        m_matrix = std::make_shared<EntityMatrix>();
+        m_movement = std::make_shared<Movement>(m_matrix);
     }
 
     bool Manager::IsInVision(std::shared_ptr<Evolution::Organism::IOrganismEntity> viewer, std::shared_ptr<Evolution::Organism::IOrganismEntity> viewee)
@@ -53,13 +54,11 @@ namespace Evolution::Manager
             if (rand() % 2 == 0)
             {
                 std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::Algae>();
-                m_movement->RegisterToMove(org, Evolution::Movement::MovementType::Randomly);
                 AddEntity(org);
             }
             else
             {
                 std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::Bacteria>();
-                m_movement->RegisterToMove(org, Evolution::Movement::MovementType::Randomly);
                 AddEntity(org);
             }
         }
@@ -67,30 +66,31 @@ namespace Evolution::Manager
 
     void Manager::AddEntity(std::shared_ptr<Evolution::Organism::IOrganismEntity> org)
     {
-        org->SetEntityId(++m_ids);
+        auto id = m_matrix->AddEntity(org);
+        org->SetEntityId(id);
         org->Spawn();
-        m_organisms.push_back(org);
+        m_movement->RegisterToMove(id, Evolution::Movement::MovementType::Randomly);
     }
 
     void Manager::RunMainLoop()
     {
-        for (int i = 0; i < m_organisms.size(); i++)
+        for (int i = 0; i < m_matrix->GetEntityCount(); i++)
         {
-            for (int j = 0; j < m_organisms.size(); j++)
+            for (int j = 0; j < m_matrix->GetEntityCount(); j++)
             {
                 if (i == j)
                 {
                     continue;
                 }
 
-                if (IsInVision(m_organisms[i], m_organisms[j]))
+                if (IsInVision(m_matrix->GetEntity(i), m_matrix->GetEntity(j)))
                 {
-                    m_organisms[i]->OnEncounter(m_organisms[i]->GetAttributes(), m_organisms[j]->GetAttributes());
+                    m_matrix->GetEntity(i)->OnEncounter(m_matrix->GetEntity(i)->GetAttributes(), m_matrix->GetEntity(j)->GetAttributes());
                 }
 
-                if (HasCollided(m_organisms[i], m_organisms[j]))
+                if (HasCollided(m_matrix->GetEntity(i), m_matrix->GetEntity(j)))
                 {
-                    m_organisms[i]->OnCollision(m_organisms[j]->GetAttributes());
+                    m_matrix->GetEntity(i)->OnCollision(m_matrix->GetEntity(j)->GetAttributes());
                 }
             }
         }
@@ -122,11 +122,11 @@ namespace Evolution::Manager
 
             RunMainLoop();
             m_movement->Move();
-            for (int i = 0; i < m_organisms.size(); i++)
+            for (int i = 0; i < m_matrix->GetEntityCount(); i++)
             {
-                m_organisms[i]->RunMainLoop();
-                m_window->draw(*(m_organisms[i]));
-                CUtility::ShowVisionInfo(m_organisms[i]->GetAttributes()->visionDepth, m_organisms[i]->GetAttributes()->visionConeAngle, m_organisms[i]->getPosition(), m_organisms[i]->getRotation());
+                m_matrix->GetEntity(i)->RunMainLoop();
+                m_window->draw(*(m_matrix->GetEntity(i)));
+                CUtility::ShowVisionInfo(m_matrix->GetEntity(i)->GetAttributes()->visionDepth, m_matrix->GetEntity(i)->GetAttributes()->visionConeAngle, m_matrix->GetEntity(i)->getPosition(), m_matrix->GetEntity(i)->getRotation());
             }
 
             m_window->display();
@@ -137,11 +137,6 @@ namespace Evolution::Manager
     {
         m_movement.reset();
         m_window.reset();
-        for (auto &org : m_organisms)
-        {
-            org->Destroy();
-        }
-
-        m_organisms.clear();
+        m_matrix->Shutdown();
     }
 }

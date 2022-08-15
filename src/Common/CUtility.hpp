@@ -28,7 +28,7 @@ namespace Evolution
         static Resolution DegreeToRadians(Resolution degree);
         static Quadrant GetQuadrant(Resolution degree);
         static sf::Color GetRandomColor();
-        static NFResolution GetRandomValueInRange(NFResolution low, NFResolution high);
+        static NFResolution32 GetRandomValueInRange(NFResolution32 low, NFResolution32 high);
         static Organism::Attributes GenerateRandomAttributes();
         static void SetRandomSpawnStats(CEntityWrapper<sf::CircleShape> &);
         static void SetOriginToCenter(CEntityWrapper<sf::CircleShape> &);

@@ -14,7 +14,7 @@
 
 namespace Evolution::Behaviour
 {
-    using PriorityPair = std::pair<NFResolution, bool>;
+    using PriorityPair = std::pair<NFResolution32, bool>;
     using MapOfPOIs = std::map<sf::Vector2f, PriorityPair>;
 
     class BehaviourHandler : public IBehaviourHandler
@@ -31,7 +31,7 @@ namespace Evolution::Behaviour
         void RunMainLoop(sf::Vector2f) override;
 
     private:
-        NFResolution FindClosestOrganism(sf::Vector2f);
+        NFResolution32 FindClosestOrganism(sf::Vector2f);
         MapOfPOIs m_poi;
         sf::Vector2f m_destination;
     };

@@ -16,7 +16,7 @@ namespace Evolution::Organism
         Bacteria(Bacteria &&) = default;
         Bacteria &operator=(Bacteria &&) = default;
 
-        void SetEntityId(NFResolution) override;
+        void SetEntityId(NFResolution32) override;
         void Spawn() override;
         void Destroy() override;
         void RunMainLoop() override;

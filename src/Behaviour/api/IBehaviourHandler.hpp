@@ -16,7 +16,7 @@ namespace Evolution
             sf::Vector2f position;
         };
 
-        using MapOfOrganismInfo = std::unordered_map<NFResolution, OrganismReactionInfo>;
+        using MapOfOrganismInfo = std::unordered_map<NFResolution32, OrganismReactionInfo>;
         class IBehaviourHandler
         {
         public:

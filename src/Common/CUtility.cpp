@@ -109,11 +109,11 @@ namespace Evolution
         return sf::Color(rand() % 256, rand() % 256, rand() % 256, rand() % 256);
     }
 
-    NFResolution CUtility::GetRandomValueInRange(NFResolution low, NFResolution high)
+    NFResolution32 CUtility::GetRandomValueInRange(NFResolution32 low, NFResolution32 high)
     {
         std::random_device rd;  // Will be used to obtain a seed for the random number engine
         std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
-        std::uniform_int_distribution<NFResolution> dis(low, high);
+        std::uniform_int_distribution<NFResolution32> dis(low, high);
 
         return dis(gen);
     }
