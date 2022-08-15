@@ -4,7 +4,6 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include "IConfig.hpp"
-#include "CUtility.hpp"
 
 #ifdef UNIT_TEST
 #include <gtest/gtest.h>
@@ -31,7 +30,8 @@ namespace Evolution
         CEntityWrapper(CEntityWrapper &&) = default;
         CEntityWrapper &operator=(CEntityWrapper &&) = default;
 
-        int32_t GetEntityId();
+        NFResolution GetEntityId();
+        virtual void SetEntityId(NFResolution id);
         bool IsAlive();
         void SetLiveStatus(bool);
         virtual void OnCollision(Species);
@@ -45,10 +45,10 @@ namespace Evolution
         }
 
     protected:
-        int32_t m_Id{};
-        Evolution::shortBool m_isActive;
+        NFResolution m_Id{-1};
+        Evolution::shortBool m_isActive{0};
         sf::Vector2f m_coordinates;
-        Species m_species;
+        Species m_species{Species::INVALID};
 
 #ifdef DEBUG
     private:
@@ -75,13 +75,19 @@ namespace Evolution
     }
 
     template <typename Entity>
+    void CEntityWrapper<Entity>::SetEntityId(NFResolution id)
+    {
+        m_Id = id;
+    }
+
+    template <typename Entity>
     void CEntityWrapper<Entity>::SetLiveStatus(bool status)
     {
         (status) ? m_isActive.set(0) : m_isActive.reset(0);
     }
 
     template <typename Entity>
-    int32_t CEntityWrapper<Entity>::GetEntityId()
+    NFResolution CEntityWrapper<Entity>::GetEntityId()
     {
         return m_Id;
     }

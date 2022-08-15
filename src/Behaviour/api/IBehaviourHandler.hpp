@@ -3,31 +3,53 @@
 
 #include "IConfig.hpp"
 #include "Reaction.hpp"
-
+#include <unordered_map>
+#include <mutex>
 namespace Evolution
 {
     namespace Behaviour
     {
 
+        struct OrganismReactionInfo
+        {
+            ReactionType reaction;
+            sf::Vector2f position;
+        };
+
+        using MapOfOrganismInfo = std::unordered_map<NFResolution, OrganismReactionInfo>;
         class IBehaviourHandler
         {
         public:
-            void OnCollision(Organism::Attributes orgAttributes)
+            void OnCollision(std::shared_ptr<Organism::Attributes> orgAttributes)
             {
                 // TO DO
             }
 
-            void OnEncounter(Organism::Attributes orgAttributes, Organism::Attributes targetAttributes)
+            void OnEncounter(std::shared_ptr<Organism::Attributes> orgAttributes, std::shared_ptr<Organism::Attributes> targetAttributes)
             {
-                auto reaction = Evolution::Behaviour::Reaction::GetInstance().React(orgAttributes, targetAttributes);
+                auto reaction = Reaction::GetInstance().FetchReaction(orgAttributes, targetAttributes);
 
                 // Need to replace with priority queue
+                std::lock_guard<std::mutex> lck(m_mtx);
+                m_organismsInView[targetAttributes->id] = {reaction, targetAttributes->position};
                 m_hasNewPoi = true;
             }
 
+            void RegisterForReaction(ReactionCb callback)
+            {
+                m_reactionCb = callback;
+            }
+
+            virtual void RunMainLoop(sf::Vector2f orgPos)
+            {
+            }
+
         protected:
-            bool m_hasNewPoi{false}, m_targetReached{false};
-            ReactionType m_reaction;
+            MapOfOrganismInfo m_organismsInView;
+            std::mutex m_mtx;
+            bool m_hasNewPoi{false};
+            ReactionCb m_reactionCb{nullptr};
+            Organism::OrganismType m_type{Organism::OrganismType::INVALID};
         };
     }
 }

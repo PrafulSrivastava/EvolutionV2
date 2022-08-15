@@ -2,6 +2,7 @@
 #define CUTILITY_HPP
 
 #include "IConfig.hpp"
+#include "IEntity.hpp"
 #include <math.h>
 #include <memory>
 #include <SFML/Graphics.hpp>
@@ -28,10 +29,12 @@ namespace Evolution
         static Quadrant GetQuadrant(Resolution degree);
         static sf::Color GetRandomColor();
         static NFResolution GetRandomValueInRange(NFResolution low, NFResolution high);
+        static Organism::Attributes GenerateRandomAttributes();
+        static void SetRandomSpawnStats(CEntityWrapper<sf::CircleShape> &);
+        static void SetOriginToCenter(CEntityWrapper<sf::CircleShape> &);
 
     private:
-        static std::shared_ptr<sf::RenderWindow>
-            m_windowPtr;
+        static std::shared_ptr<sf::RenderWindow> m_windowPtr;
     };
 
 }

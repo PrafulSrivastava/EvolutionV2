@@ -19,26 +19,57 @@ namespace Evolution
                 return m_attributes;
             }
 
-            void OnCollision(Attributes targetAttributes)
+            void OnCollision(std::shared_ptr<Attributes> targetAttributes)
             {
                 m_behaviour->OnCollision(targetAttributes);
             }
 
-            void OnEncounter(Attributes orgAttributes, Attributes targetAttributes)
+            void OnEncounter(std::shared_ptr<Attributes> orgAttributes, std::shared_ptr<Attributes> targetAttributes)
             {
-                // auto reaction = Reaction::GetInstance().React(m_organism, organismEncountered);
-
-                // // Need to replace with priority queue
-                // m_organismsInView.push_back({reaction, organismEncountered});
-                // m_hasNewPoi = true;
                 m_behaviour->OnEncounter(orgAttributes, targetAttributes);
             }
 
+            void OnReaction(Movement::Operations operations)
+            {
+                std::lock_guard<std::mutex> lck(m_mtx);
+
+                m_operations.clear();
+                m_operations = std::move(operations);
+                m_reactionChanged = true;
+            }
+
+            NFResolution GetEntityId()
+            {
+                return m_attributes->id;
+            }
+
+            void SetCurrentPos(sf::Vector2f pos)
+            {
+                m_attributes->position = pos;
+            }
+
+            Movement::Operations FetchMovementOperations()
+            {
+                std::lock_guard<std::mutex> lck(m_mtx);
+
+                if (m_reactionChanged)
+                {
+                    m_reactionChanged = false;
+                    return m_operations;
+                }
+
+                return {};
+            }
+
         protected:
-            void OnEncounter();
-            std::shared_ptr<Evolution::Behaviour::IBehaviourHandler> m_behaviour;
-            std::shared_ptr<Attributes> m_attributes;
-            OrganismType m_type;
+            std::mutex m_mtx;
+            std::shared_ptr<Evolution::Behaviour::IBehaviourHandler>
+                m_behaviour{nullptr};
+            std::shared_ptr<Attributes> m_attributes{nullptr};
+            OrganismType m_type{OrganismType::INVALID};
+            Behaviour::ReactionType m_reaction{Behaviour::ReactionType::INVALID};
+            Movement::Operations m_operations{Movement::MovementOperation::INVALID};
+            bool m_reactionChanged{false};
         };
     }
 }

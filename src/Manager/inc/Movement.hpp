@@ -22,6 +22,7 @@ namespace Evolution::Manager
         void UnRegisterToMove(int16_t) override;
         void Move() override;
         void MoveToPoint(sf::Vector2f) override;
+        void UpdateMovementOperation(int16_t, Evolution::Movement::MovementOperation) override;
 
     private:
         void MoveRandomly(MovementInfo &);

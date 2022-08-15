@@ -16,9 +16,10 @@ namespace Evolution
         {
         public:
             virtual void RunGameLoop() = 0;
+            virtual void Shutdown() = 0;
 
         protected:
-            std::shared_ptr<sf::RenderWindow> m_window;
+            std::shared_ptr<sf::RenderWindow> m_window{nullptr};
         };
     }
 }

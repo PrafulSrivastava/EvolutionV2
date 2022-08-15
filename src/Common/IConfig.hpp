@@ -2,11 +2,13 @@
 #define ICONFIG_HPP
 
 #include <bitset>
-
+#include <functional>
+#include <SFML/Graphics.hpp>
+#include <iostream>
 namespace Evolution
 {
     using Resolution = float;
-    using NFResolution = int;
+    using NFResolution = int32_t;
     using shortBool = std::bitset<1>;
 
     namespace Nutrition
@@ -43,6 +45,23 @@ namespace Evolution
             Randomly = 0,
             Purposely = 1
         };
+
+        enum class MovementOperation : uint8_t
+        {
+            INVALID = 254,
+            IncrementSpeed = 0,
+            DecrementSpeed,
+            RotateBy180,
+            RotateBy90,
+            RotateByRandom,
+            ChangeMotionToKill,
+            ChangeMotionToGroup,
+            ChangeMotionToIgnore,
+            ChangeMotionToFight,
+            ChangeMotionToRun,
+        };
+
+        using Operations = std::vector<Movement::MovementOperation>;
     }
 
     namespace Position
@@ -73,10 +92,8 @@ namespace Evolution
         enum class MessageType : uint8_t
         {
             INVALID = 254,
-
             GROUP = 1
         };
-
         struct Attributes
         {
             Resolution speed{0};
@@ -86,6 +103,8 @@ namespace Evolution
             Resolution energy{0};
             Resolution socializing{0};
             Resolution aggression{0};
+            NFResolution id;
+            sf::Vector2f position;
 
             OrganismType type;
             MessageType message;
@@ -97,13 +116,14 @@ namespace Evolution
         enum class ReactionType : uint8_t
         {
             INVALID = 254,
-
             KILL = 0,
             IGNORE = 1,
             RUN = 2,
             FIGHT = 3,
             GROUP = 4,
         };
+
+        using ReactionCb = std::function<void(Movement::Operations)>;
     }
 
 }

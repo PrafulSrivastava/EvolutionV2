@@ -3,6 +3,7 @@
 #include "IConfig.hpp"
 #include "Bacteria.hpp"
 #include "Algae.hpp"
+#include "CUtility.hpp"
 #include "BehaviourHandler.hpp"
 #include <math.h>
 
@@ -30,6 +31,7 @@ namespace Evolution::Manager
         if (res <= viewer->GetAttributes()->visionDepth)
         {
             inVision = true;
+            viewee->SetCurrentPos(viewee->getPosition());
         }
         return inVision;
     }
@@ -46,17 +48,17 @@ namespace Evolution::Manager
         std::shared_ptr<Evolution::Organism::IOrganismEntity> bacteria;
         std::shared_ptr<Evolution::Organism::IOrganismEntity> algae;
 
-        for (int i = 0; i < 33; i++)
+        for (int i = 0; i < 5; i++)
         {
             if (rand() % 2 == 0)
             {
-                std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::Bacteria>();
+                std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::Algae>();
                 m_movement->RegisterToMove(org, Evolution::Movement::MovementType::Randomly);
                 AddEntity(org);
             }
             else
             {
-                std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::Algae>();
+                std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::Bacteria>();
                 m_movement->RegisterToMove(org, Evolution::Movement::MovementType::Randomly);
                 AddEntity(org);
             }
@@ -65,6 +67,7 @@ namespace Evolution::Manager
 
     void Manager::AddEntity(std::shared_ptr<Evolution::Organism::IOrganismEntity> org)
     {
+        org->SetEntityId(++m_ids);
         org->Spawn();
         m_organisms.push_back(org);
     }
@@ -82,12 +85,12 @@ namespace Evolution::Manager
 
                 if (IsInVision(m_organisms[i], m_organisms[j]))
                 {
-                    m_organisms[i]->OnEncounter(*(m_organisms[i]->GetAttributes()), *(m_organisms[j]->GetAttributes()));
+                    m_organisms[i]->OnEncounter(m_organisms[i]->GetAttributes(), m_organisms[j]->GetAttributes());
                 }
 
                 if (HasCollided(m_organisms[i], m_organisms[j]))
                 {
-                    m_organisms[i]->OnCollision(*(m_organisms[j]->GetAttributes()));
+                    m_organisms[i]->OnCollision(m_organisms[j]->GetAttributes());
                 }
             }
         }
@@ -128,5 +131,17 @@ namespace Evolution::Manager
 
             m_window->display();
         }
+    }
+
+    void Manager::Shutdown()
+    {
+        m_movement.reset();
+        m_window.reset();
+        for (auto &org : m_organisms)
+        {
+            org->Destroy();
+        }
+
+        m_organisms.clear();
     }
 }

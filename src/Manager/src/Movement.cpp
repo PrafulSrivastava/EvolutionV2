@@ -1,5 +1,6 @@
 #include "Movement.hpp"
 #include "IConfig.hpp"
+#include "CUtility.hpp"
 
 namespace Evolution::Manager
 {
@@ -29,16 +30,21 @@ namespace Evolution::Manager
 
     void Movement::Move()
     {
-        for (auto &info : m_organismsMovementInfo)
+        for (NFResolution i = 0; i < m_organismsMovementInfo.size(); i++)
         {
-            switch (info.type)
+            switch (m_organismsMovementInfo[i].type)
             {
             case Evolution::Movement::MovementType::Randomly:
-                MoveRandomly(info);
+                MoveRandomly(m_organismsMovementInfo[i]);
                 break;
             case Evolution::Movement::MovementType::Purposely:
-                MovePurposely(info);
+                MovePurposely(m_organismsMovementInfo[i]);
                 break;
+            }
+
+            for (auto operation : m_organismsMovementInfo[i].organism->FetchMovementOperations())
+            {
+                UpdateMovementOperation(i, operation);
             }
         }
     }
@@ -118,5 +124,74 @@ namespace Evolution::Manager
     }
     void Movement::MoveToPoint(sf::Vector2f)
     {
+    }
+
+    void Movement::UpdateMovementOperation(int16_t id, Evolution::Movement::MovementOperation operation)
+    {
+        std::cout << __func__ << " For " << id << std::endl;
+
+        auto &org = m_organismsMovementInfo[id].organism;
+        switch (operation)
+        {
+        case Evolution::Movement::MovementOperation::IncrementSpeed:
+            std::cout << __func__ << " IncrementSpeed for " << id << " FROM : " << org->GetAttributes()->speed << std::endl;
+            org->GetAttributes()->speed += 0.01;
+            std::cout << __func__ << " TO: : " << org->GetAttributes()->speed << std::endl;
+
+            break;
+        case Evolution::Movement::MovementOperation::DecrementSpeed:
+            std::cout << __func__ << " Decrement for " << id << " FROM : " << org->GetAttributes()->speed << std::endl;
+
+            if (org->GetAttributes()->speed > 0.01)
+            {
+                org->GetAttributes()->speed -= 0.01;
+            }
+            std::cout << __func__ << " TO: : " << org->GetAttributes()->speed << std::endl;
+
+            break;
+        case Evolution::Movement::MovementOperation::RotateBy180:
+
+            std::cout << __func__ << " Change Angle for " << id << " FROM : " << org->getRotation() << std::endl;
+            org->setRotation(org->getRotation() + 180);
+            std::cout << __func__ << " TO : " << org->getRotation() << std::endl;
+            break;
+        case Evolution::Movement::MovementOperation::RotateBy90:
+            std::cout << __func__ << " Change Angle for " << id << " FROM : " << org->getRotation() << std::endl;
+
+            org->setRotation(org->getRotation() + 90);
+            std::cout << __func__ << " TO : " << org->getRotation() << std::endl;
+
+            break;
+        case Evolution::Movement::MovementOperation::RotateByRandom:
+            std::cout << __func__ << " Change Angle for " << id << " FROM : " << org->getRotation() << std::endl;
+            org->setRotation(org->getRotation() + rand() % 360);
+            std::cout << __func__ << " TO : " << org->getRotation() << std::endl;
+            break;
+        case Evolution::Movement::MovementOperation::ChangeMotionToKill:
+            std::cout << __func__ << "ChangeMotionToKill" << std::endl;
+
+            org->setFillColor(sf::Color::Red);
+            break;
+        case Evolution::Movement::MovementOperation::ChangeMotionToGroup:
+            std::cout << __func__ << "ChangeMotionToGroup" << std::endl;
+
+            org->setFillColor(sf::Color::Green);
+            break;
+        case Evolution::Movement::MovementOperation::ChangeMotionToIgnore:
+            std::cout << __func__ << "ChangeMotionToIgnore" << std::endl;
+
+            org->setFillColor(sf::Color::Cyan);
+            break;
+        case Evolution::Movement::MovementOperation::ChangeMotionToFight:
+            std::cout << __func__ << "ChangeMotionToFight" << std::endl;
+
+            org->setFillColor(sf::Color::Yellow);
+            break;
+        case Evolution::Movement::MovementOperation::ChangeMotionToRun:
+            std::cout << __func__ << "ChangeMotionToRun" << std::endl;
+
+            org->setFillColor(sf::Color::Magenta);
+            break;
+        }
     }
 }

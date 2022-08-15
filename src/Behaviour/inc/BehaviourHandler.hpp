@@ -14,35 +14,26 @@
 
 namespace Evolution::Behaviour
 {
-    using PriorityPair = std::pair<int32_t, bool>;
+    using PriorityPair = std::pair<NFResolution, bool>;
     using MapOfPOIs = std::map<sf::Vector2f, PriorityPair>;
 
     class BehaviourHandler : public IBehaviourHandler
     {
     public:
         // BehaviourHandler() = default;
-        BehaviourHandler();
+        BehaviourHandler(Organism::OrganismType);
         ~BehaviourHandler() = default;
         BehaviourHandler(const BehaviourHandler &) = default;
         BehaviourHandler &operator=(const BehaviourHandler &) = default;
         BehaviourHandler(BehaviourHandler &&) = default;
         BehaviourHandler &operator=(BehaviourHandler &&) = default;
 
-        void RunMainLoop();
+        void RunMainLoop(sf::Vector2f) override;
 
     private:
-        sf::Vector2f FindClosestOrganism(sf::Vector2f orgPos);
-
-        // void Move();
-        void Group();
-        void Kill();
-        void FightBack();
-        void Ignore();
-        void Run();
-
+        NFResolution FindClosestOrganism(sf::Vector2f);
         MapOfPOIs m_poi;
         sf::Vector2f m_destination;
-        bool m_hasDesination{false};
     };
 }
 

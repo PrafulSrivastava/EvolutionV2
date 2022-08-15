@@ -6,6 +6,8 @@
 #endif
 #include "IConfig.hpp"
 
+#include <memory>
+
 namespace Evolution
 {
     namespace Behaviour
@@ -15,15 +17,19 @@ namespace Evolution
         {
         public:
             static Reaction &GetInstance();
-            ReactionType React(Evolution::Organism::Attributes orgAttributes, Evolution::Organism::Attributes targetAttributes);
+            ReactionType FetchReaction(std::shared_ptr<Evolution::Organism::Attributes> orgAttributes, std::shared_ptr<Evolution::Organism::Attributes> targetAttributes);
+            std::vector<Movement::MovementOperation> React(Evolution::Organism::OrganismType, Behaviour::ReactionType);
 
         private:
             Reaction() = default;
             ~Reaction() = default;
 
-            ReactionType Carnivore(Evolution::Organism::Attributes orgAttributes, Evolution::Organism::Attributes targetAttributes);
-
-            ReactionType Herbivore(Evolution::Organism::Attributes orgAttributes, Evolution::Organism::Attributes targetAttributes);
+            ReactionType FetchCarnivoreReaction(std::shared_ptr<Evolution::Organism::Attributes> orgAttributes, std::shared_ptr<Evolution::Organism::Attributes> targetAttributes);
+            ReactionType FetchHerbivoreReaction(std::shared_ptr<Evolution::Organism::Attributes> orgAttributes, std::shared_ptr<Evolution::Organism::Attributes> targetAttributes);
+            ReactionType FetchOmnivoreReaction(std::shared_ptr<Evolution::Organism::Attributes> orgAttributes, std::shared_ptr<Evolution::Organism::Attributes> targetAttributes);
+            std::vector<Movement::MovementOperation> ReactCarnivore(Behaviour::ReactionType);
+            std::vector<Movement::MovementOperation> ReactHerbivore(Behaviour::ReactionType);
+            std::vector<Movement::MovementOperation> ReactOmnivore(Behaviour::ReactionType);
         };
     }
 }

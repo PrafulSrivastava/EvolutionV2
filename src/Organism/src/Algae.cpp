@@ -1,44 +1,45 @@
 #include "Algae.hpp"
 #include "BehaviourHandler.hpp"
+#include "CUtility.hpp"
 
 namespace Evolution::Organism
 {
     Algae::Algae()
     {
-
         m_species = Species::ALGAE;
-        m_attributes = std::make_shared<Attributes>();
-        m_attributes->energy = 100;
-        m_attributes->speed = rand() % 5 + 1;
-        m_attributes->stamina = 100;
-        m_attributes->aggression = rand() % 200;
-        m_attributes->visionConeAngle = rand() % 46 + 45;
-        m_attributes->visionDepth = rand() % 20 + 30;
-
-        m_behaviour = std::make_shared<Evolution::Behaviour::BehaviourHandler>();
-    }
-
-    void Algae::OnCollision(Species species)
-    {
-        if (species != m_species)
+        m_attributes = std::make_shared<Attributes>(CUtility::GenerateRandomAttributes());
+        if (rand() % 2 == 0)
         {
+            m_attributes->type = OrganismType::OMNIVORE;
         }
+        else
+        {
+            m_attributes->type = OrganismType::HERBIVORE;
+        }
+
+        m_behaviour = std::make_shared<Evolution::Behaviour::BehaviourHandler>(m_attributes->type);
+        m_behaviour->RegisterForReaction(std::bind(&Algae::OnReaction, this, std::placeholders::_1));
     }
+
+    void Algae::SetEntityId(NFResolution id)
+    {
+        m_attributes->id = id;
+    }
+
     void Algae::Spawn()
     {
-        setPosition(200, 200);
-        setPointCount(rand() % 100 + 3);
-        setFillColor(sf::Color::Green);
-        setRadius(rand() % 20 + 4);
-        setOrigin(getRadius(), getRadius());
-        setRotation(rand() % 360);
+        CUtility::SetRandomSpawnStats(*this);
     }
+
     void Algae::Destroy()
     {
+        m_attributes.reset();
+        m_behaviour.reset();
     }
 
     void Algae::RunMainLoop()
     {
+        m_behaviour->RunMainLoop(getPosition());
     }
 
 }

@@ -12,6 +12,34 @@ namespace Evolution
         m_windowPtr = window;
     }
 
+    Organism::Attributes CUtility::GenerateRandomAttributes()
+    {
+
+        Organism::Attributes attributes;
+        attributes.energy = 100;
+        attributes.speed = rand() % 5 + 1;
+        attributes.stamina = 100;
+        attributes.aggression = rand() % 200;
+        attributes.visionConeAngle = rand() % 46 + 45;
+        attributes.visionDepth = rand() % 100 + 30;
+        return attributes;
+    }
+
+    void CUtility::SetOriginToCenter(CEntityWrapper<sf::CircleShape> &entity)
+    {
+        entity.setOrigin(entity.getRadius(), entity.getRadius());
+    }
+
+    void CUtility::SetRandomSpawnStats(CEntityWrapper<sf::CircleShape> &entity)
+    {
+        entity.setPosition(200, 200);
+        entity.setPointCount(rand() % 100 + 3);
+        entity.setFillColor(sf::Color::White);
+        entity.setRadius(rand() % 20 + 4);
+        entity.setRotation(rand() % 360);
+        SetOriginToCenter(entity);
+    }
+
     Resolution CUtility::GetDistanceBetweenPoints(sf::Vector2f p1, sf::Vector2f p2)
     {
         return std::sqrt(std::pow((p1.x - p2.x), 2) + std::pow((p1.y - p2.y), 2));

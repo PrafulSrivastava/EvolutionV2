@@ -2,11 +2,10 @@
 #define MANAGER_HPP
 
 #include "IManager.hpp"
-#include "IBehaviourHandler.hpp"
 #include "IMovement.hpp"
+#include "IOrganismEntity.hpp"
 #include <vector>
 #include <memory>
-
 namespace Evolution::Manager
 {
     class Manager : public IManager
@@ -23,6 +22,7 @@ namespace Evolution::Manager
         void RunGameLoop();
         void AddEntity(std::shared_ptr<Evolution::Organism::IOrganismEntity>);
         void Init();
+        void Shutdown() override;
 
     private:
         bool IsInVision(std::shared_ptr<Evolution::Organism::IOrganismEntity> viewer, std::shared_ptr<Evolution::Organism::IOrganismEntity> viewee);
@@ -30,7 +30,8 @@ namespace Evolution::Manager
 
         std::vector<std::shared_ptr<Evolution::Organism::IOrganismEntity>> m_organisms;
 
-        std::shared_ptr<IMovement> m_movement;
+        std::shared_ptr<IMovement> m_movement{nullptr};
+        NFResolution m_ids{-1};
     };
 }
 
