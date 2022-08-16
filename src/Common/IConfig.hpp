@@ -1,9 +1,17 @@
 #ifndef ICONFIG_HPP
 #define ICONFIG_HPP
 
+#include <bitset>
+#include <functional>
+#include <SFML/Graphics.hpp>
+#include <iostream>
 namespace Evolution
 {
-    using Resolution = int;
+    using Resolution = float;
+    using NFResolution32 = int32_t;
+    using NFResolution16 = int16_t;
+
+    using shortBool = std::bitset<1>;
 
     namespace Nutrition
     {
@@ -19,6 +27,152 @@ namespace Evolution
         constexpr auto CARBON = 0.05;
         constexpr auto FAT = 0.05;
         constexpr auto WATER = 0.7;
+    }
+    namespace Utility
+    {
+        constexpr auto Height = 600;
+        constexpr auto FrameLimit = 120;
+        constexpr auto Width = 800;
+        constexpr auto WindowName = "EVOLUTION";
+        constexpr auto Pi = 3.147;
+        constexpr auto TotalAngle = 360;
+        constexpr auto TotalHemisphere = 2;
+        constexpr auto TotalQuadrant = 4;
+        constexpr auto TotalProbability = 100;
+        constexpr auto ProbabilityFor = 70;
+        constexpr auto ProbabilityAgainst = 30;
+        constexpr auto MaxColorVal = 254;
+        constexpr auto StepReductionFactor = 1;
+        constexpr auto SpeedReductionFactor = 0.01;
+        constexpr auto SpeedEnhancementFactor = 0.01;
+
+        enum Quadrant : uint8_t
+        {
+            FIRST = 0,
+            SECOND = 1,
+            THIRD = 2,
+            FOURTH = 3
+        };
+
+        enum Hemisphere : int8_t
+        {
+            UPPER = 1,
+            LOWER = -1
+        };
+
+        enum Choice : uint8_t
+        {
+            HEADS = 0,
+            TAILS
+        };
+    }
+
+    namespace Movement
+    {
+        constexpr auto MinSteps = 60;
+        constexpr auto MaxSteps = 100;
+        enum class MovementType : uint8_t
+        {
+            Randomly = 0,
+            Purposely = 1
+        };
+
+        enum class MovementOperation : uint8_t
+        {
+            INVALID = 254,
+            IncrementSpeed = 0,
+            DecrementSpeed,
+            RotateBy180,
+            RotateBy90,
+            RotateByRandom,
+            ChangeMotionToKill,
+            ChangeMotionToGroup,
+            ChangeMotionToIgnore,
+            ChangeMotionToFight,
+            ChangeMotionToRun,
+        };
+
+        using Operations = std::vector<Movement::MovementOperation>;
+    }
+
+    namespace Position
+    {
+        constexpr auto MIN_VALUE = 300;
+        constexpr auto MAX_VALUE = 700;
+
+        constexpr auto MIN_OFFSET = 30;
+        constexpr auto MAX_OFFSET = 300;
+    }
+
+    namespace General
+    {
+        constexpr auto MIN_POPULATION = 1;
+        constexpr auto MAX_POPULATION = 20;
+    }
+
+    namespace Organism
+    {
+        enum class OrganismType : uint8_t
+        {
+            INVALID = 254,
+            HERBIVORE = 0,
+            CARNIVORE = 1,
+            OMNIVORE = 2
+        };
+
+        enum class MessageType : uint8_t
+        {
+            INVALID = 254,
+            GROUP = 1
+        };
+        struct Attributes
+        {
+            Resolution speed{0};
+            Resolution visionConeAngle{0};
+            Resolution visionDepth{0};
+            Resolution stamina{0};
+            Resolution energy{0};
+            Resolution socializing{0};
+            Resolution aggression{0};
+            NFResolution32 id;
+            sf::Vector2f position;
+
+            OrganismType type;
+            MessageType message;
+        };
+
+        constexpr auto MaxSpawnEnergy = 100;
+        constexpr auto MinSpawnEnergy = 50;
+        constexpr auto MaxSpawnStamina = 100;
+        constexpr auto MinSpawnStamina = 60;
+        constexpr auto MaxSpawnConeAngle = 90;
+        constexpr auto MinSpawnConeAngle = 45;
+        constexpr auto MaxSpawnConeDepth = 100;
+        constexpr auto MinSpawnConeDepth = 50;
+        constexpr auto MaxSpawnSpeed = 5;
+        constexpr auto MinSpawnSpeed = 1;
+        constexpr auto MaxSpawnAggression = 100;
+        constexpr auto MinSpawnAggression = 0;
+        constexpr auto MinEdges = 3;
+        constexpr auto MaxEdges = 10;
+        constexpr auto MinRadius = 4;
+        constexpr auto MaxRadius = 20;
+        const sf::Color SpawnColor = sf::Color::White;
+    }
+
+    namespace Behaviour
+    {
+        enum class ReactionType : uint8_t
+        {
+            INVALID = 254,
+            KILL = 0,
+            IGNORE = 1,
+            RUN = 2,
+            FIGHT = 3,
+            GROUP = 4,
+        };
+
+        using ReactionCb = std::function<void(Movement::Operations)>;
     }
 
 }

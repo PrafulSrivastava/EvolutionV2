@@ -1,12 +1,12 @@
-#include "Bacteria.hpp"
+#include "Algae.hpp"
 #include "BehaviourHandler.hpp"
 #include "CUtility.hpp"
 
 namespace Evolution::Organism
 {
-    Bacteria::Bacteria()
+    Algae::Algae()
     {
-        m_species = Species::BACTERIA;
+        m_species = Species::ALGAE;
         m_attributes = std::make_shared<Attributes>(CUtility::GenerateRandomAttributes());
         if (CUtility::HeadsOrTails() == Utility::Choice::HEADS)
         {
@@ -14,29 +14,30 @@ namespace Evolution::Organism
         }
         else
         {
-            m_attributes->type = OrganismType::CARNIVORE;
+            m_attributes->type = OrganismType::HERBIVORE;
         }
+
         m_behaviour = std::make_shared<Evolution::Behaviour::BehaviourHandler>(m_attributes->type);
-        m_behaviour->RegisterForReaction(std::bind(&Bacteria::OnReaction, this, std::placeholders::_1));
+        m_behaviour->RegisterForReaction(std::bind(&Algae::OnReaction, this, std::placeholders::_1));
     }
 
-    void Bacteria::SetEntityId(NFResolution32 id)
+    void Algae::SetEntityId(NFResolution32 id)
     {
         m_attributes->id = id;
     }
 
-    void Bacteria::Spawn()
+    void Algae::Spawn()
     {
         CUtility::SetRandomSpawnStats(*this);
     }
 
-    void Bacteria::Destroy()
+    void Algae::Destroy()
     {
         m_attributes.reset();
         m_behaviour.reset();
     }
 
-    void Bacteria::RunMainLoop()
+    void Algae::RunMainLoop()
     {
         m_behaviour->RunMainLoop(getPosition());
     }

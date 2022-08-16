@@ -2,6 +2,7 @@
 #define BACTERIA_HPP
 
 #include "IOrganismEntity.hpp"
+#include <memory>
 
 namespace Evolution::Organism
 {
@@ -9,14 +10,20 @@ namespace Evolution::Organism
     {
     public:
         Bacteria();
-        ~Bacteria();
+        ~Bacteria() = default;
+        Bacteria(const Bacteria &) = default;
+        Bacteria &operator=(const Bacteria &) = default;
+        Bacteria(Bacteria &&) = default;
+        Bacteria &operator=(Bacteria &&) = default;
 
-        void OnCollision(Species) override;
+        void SetEntityId(NFResolution32) override;
         void Spawn() override;
         void Destroy() override;
+        void RunMainLoop() override;
 
     private:
     };
+
 }
 
 #endif
