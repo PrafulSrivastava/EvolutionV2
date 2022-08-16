@@ -13,8 +13,8 @@ namespace Evolution::Manager
         info.organismId = orgId;
         info.type = type;
         info.steps = 0;
-        info.hemisphere = 0;
-        info.quadrant = 0;
+        info.hemisphere = Utility::Hemisphere::UPPER;
+        info.quadrant = Utility::Quadrant::FIRST;
 
         m_organismsMovementInfo.push_back(info);
         return ++m_subscriptionId;
@@ -78,37 +78,27 @@ namespace Evolution::Manager
         auto attributes = m_matrix->GetEntity(info.organismId)->GetAttributes();
         if (info.steps <= 0)
         {
-            info.steps = rand() % Evolution::Movement::MaxSteps + Evolution::Movement::MinSteps;
-            auto hemisphereProbability = rand() % 100;
+            info.steps = CUtility::GetRandomValueInRange(Evolution::Movement::MinSteps, Evolution::Movement::MaxSteps);
+            auto hemisphereProbability = CUtility::GetProbability();
 
-            if (hemisphereProbability >= 70)
+            if (hemisphereProbability >= Utility::ProbabilityFor)
             {
-                if (info.hemisphere == 0)
-                {
-
-                    info.hemisphere = 1;
-                }
-                else
-                {
-                    info.hemisphere = 0;
-                }
+                info.hemisphere = static_cast<Utility::Hemisphere>(static_cast<int8_t>(info.hemisphere) * -1);
             }
 
-            auto quadrantProbability = rand() & 100;
+            auto quadrantProbability = CUtility::GetProbability();
 
-            if (quadrantProbability >= 70)
+            if (quadrantProbability >= Utility::ProbabilityFor)
             {
-                if (info.hemisphere == 0)
+                auto quadCnt = CUtility::GetRandomValueInRange(0, Utility::TotalQuadrant / 2);
+                if (info.hemisphere == Utility::Hemisphere::LOWER)
                 {
-                    info.quadrant = rand() % 2;
+                    quadCnt += Utility::TotalQuadrant / 2;
                 }
-                else
-                {
-                    info.quadrant = rand() % 2 + 2;
-                }
+                info.quadrant = static_cast<Utility::Quadrant>(quadCnt);
             }
 
-            auto angle = rand() % 90 + (90 * info.quadrant);
+            auto angle = CUtility::GetRandomValueInRange(0, Utility::TotalAngle / Utility::TotalQuadrant) + (Utility::TotalAngle * info.quadrant);
             m_matrix->GetEntity(info.organismId)->setRotation(angle);
         }
 
@@ -119,7 +109,7 @@ namespace Evolution::Manager
         ResetOnBoundryEncounter(newPos);
 
         m_matrix->GetEntity(info.organismId)->setPosition(newPos);
-        info.steps -= 1;
+        info.steps -= Utility::StepReductionFactor;
     }
     void Movement::MovePurposely(MovementInfo &info)
     {
@@ -130,68 +120,40 @@ namespace Evolution::Manager
 
     void Movement::UpdateMovementOperation(NFResolution16 id, Evolution::Movement::MovementOperation operation)
     {
-        std::cout << __func__ << " For " << id << std::endl;
-
         auto org = m_matrix->GetEntity(m_organismsMovementInfo[id].organismId);
         switch (operation)
         {
         case Evolution::Movement::MovementOperation::IncrementSpeed:
-            std::cout << __func__ << " IncrementSpeed for " << id << " FROM : " << org->GetAttributes()->speed << std::endl;
-            org->GetAttributes()->speed += 0.01;
-            std::cout << __func__ << " TO: : " << org->GetAttributes()->speed << std::endl;
-
+            org->GetAttributes()->speed += Utility::SpeedEnhancementFactor;
             break;
         case Evolution::Movement::MovementOperation::DecrementSpeed:
-            std::cout << __func__ << " Decrement for " << id << " FROM : " << org->GetAttributes()->speed << std::endl;
-
-            if (org->GetAttributes()->speed > 0.01)
+            if (org->GetAttributes()->speed > Utility::SpeedReductionFactor)
             {
-                org->GetAttributes()->speed -= 0.01;
+                org->GetAttributes()->speed -= Utility::SpeedReductionFactor;
             }
-            std::cout << __func__ << " TO: : " << org->GetAttributes()->speed << std::endl;
-
             break;
         case Evolution::Movement::MovementOperation::RotateBy180:
-
-            std::cout << __func__ << " Change Angle for " << id << " FROM : " << org->getRotation() << std::endl;
-            org->setRotation(org->getRotation() + 180);
-            std::cout << __func__ << " TO : " << org->getRotation() << std::endl;
+            org->setRotation(org->getRotation() + Utility::TotalAngle / Utility::TotalHemisphere);
             break;
         case Evolution::Movement::MovementOperation::RotateBy90:
-            std::cout << __func__ << " Change Angle for " << id << " FROM : " << org->getRotation() << std::endl;
-
-            org->setRotation(org->getRotation() + 90);
-            std::cout << __func__ << " TO : " << org->getRotation() << std::endl;
-
+            org->setRotation(org->getRotation() + Utility::TotalAngle / Utility::TotalQuadrant);
             break;
         case Evolution::Movement::MovementOperation::RotateByRandom:
-            std::cout << __func__ << " Change Angle for " << id << " FROM : " << org->getRotation() << std::endl;
-            org->setRotation(org->getRotation() + rand() % 360);
-            std::cout << __func__ << " TO : " << org->getRotation() << std::endl;
+            org->setRotation(org->getRotation() + CUtility::GetRandomValueInRange(0, Utility::TotalAngle));
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToKill:
-            std::cout << __func__ << "ChangeMotionToKill" << std::endl;
-
             org->setFillColor(sf::Color::Red);
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToGroup:
-            std::cout << __func__ << "ChangeMotionToGroup" << std::endl;
-
             org->setFillColor(sf::Color::Green);
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToIgnore:
-            std::cout << __func__ << "ChangeMotionToIgnore" << std::endl;
-
             org->setFillColor(sf::Color::Cyan);
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToFight:
-            std::cout << __func__ << "ChangeMotionToFight" << std::endl;
-
             org->setFillColor(sf::Color::Yellow);
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToRun:
-            std::cout << __func__ << "ChangeMotionToRun" << std::endl;
-
             org->setFillColor(sf::Color::Magenta);
             break;
         }

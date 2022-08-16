@@ -36,6 +36,35 @@ namespace Evolution
         constexpr auto WindowName = "EVOLUTION";
         constexpr auto Pi = 3.147;
         constexpr auto TotalAngle = 360;
+        constexpr auto TotalHemisphere = 2;
+        constexpr auto TotalQuadrant = 4;
+        constexpr auto TotalProbability = 100;
+        constexpr auto ProbabilityFor = 70;
+        constexpr auto ProbabilityAgainst = 30;
+        constexpr auto MaxColorVal = 254;
+        constexpr auto StepReductionFactor = 1;
+        constexpr auto SpeedReductionFactor = 0.01;
+        constexpr auto SpeedEnhancementFactor = 0.01;
+
+        enum Quadrant : uint8_t
+        {
+            FIRST = 0,
+            SECOND = 1,
+            THIRD = 2,
+            FOURTH = 3
+        };
+
+        enum Hemisphere : int8_t
+        {
+            UPPER = 1,
+            LOWER = -1
+        };
+
+        enum Choice : uint8_t
+        {
+            HEADS = 0,
+            TAILS
+        };
     }
 
     namespace Movement
@@ -111,6 +140,24 @@ namespace Evolution
             OrganismType type;
             MessageType message;
         };
+
+        constexpr auto MaxSpawnEnergy = 100;
+        constexpr auto MinSpawnEnergy = 50;
+        constexpr auto MaxSpawnStamina = 100;
+        constexpr auto MinSpawnStamina = 60;
+        constexpr auto MaxSpawnConeAngle = 90;
+        constexpr auto MinSpawnConeAngle = 45;
+        constexpr auto MaxSpawnConeDepth = 100;
+        constexpr auto MinSpawnConeDepth = 50;
+        constexpr auto MaxSpawnSpeed = 5;
+        constexpr auto MinSpawnSpeed = 1;
+        constexpr auto MaxSpawnAggression = 100;
+        constexpr auto MinSpawnAggression = 0;
+        constexpr auto MinEdges = 3;
+        constexpr auto MaxEdges = 10;
+        constexpr auto MinRadius = 4;
+        constexpr auto MaxRadius = 20;
+        const sf::Color SpawnColor = sf::Color::White;
     }
 
     namespace Behaviour

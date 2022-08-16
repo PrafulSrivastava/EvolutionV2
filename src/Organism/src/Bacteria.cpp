@@ -8,7 +8,7 @@ namespace Evolution::Organism
     {
         m_species = Species::BACTERIA;
         m_attributes = std::make_shared<Attributes>(CUtility::GenerateRandomAttributes());
-        if (rand() % 2 == 0)
+        if (CUtility::HeadsOrTails() == Utility::Choice::HEADS)
         {
             m_attributes->type = OrganismType::OMNIVORE;
         }
@@ -27,9 +27,9 @@ namespace Evolution::Organism
 
     void Bacteria::Spawn()
     {
-        // setPosition(CUtility::GetRandomValueInRange(Position::MIN_VALUE, Position::MAX_VALUE), CUtility::GetRandomValueInRange(Position::MIN_VALUE, Position::MAX_VALUE));
         CUtility::SetRandomSpawnStats(*this);
     }
+
     void Bacteria::Destroy()
     {
         m_attributes.reset();

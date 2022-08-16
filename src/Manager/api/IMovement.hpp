@@ -12,9 +12,9 @@ namespace Evolution::Manager
     struct MovementInfo
     {
         Evolution::Movement::MovementType type;
-        int steps;
-        int hemisphere;
-        int quadrant;
+        NFResolution16 steps;
+        Utility::Hemisphere hemisphere;
+        Utility::Quadrant quadrant;
         NFResolution32 organismId;
     };
 

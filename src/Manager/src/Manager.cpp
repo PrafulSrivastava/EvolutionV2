@@ -51,7 +51,7 @@ namespace Evolution::Manager
 
         for (int i = 0; i < 5; i++)
         {
-            if (rand() % 2 == 0)
+            if (CUtility::HeadsOrTails() == Utility::Choice::HEADS)
             {
                 std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::Algae>();
                 AddEntity(org);

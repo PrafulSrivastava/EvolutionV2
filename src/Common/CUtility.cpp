@@ -1,4 +1,5 @@
 #include "CUtility.hpp"
+#include "IConfig.hpp"
 #include <iostream>
 #include <math.h>
 #include <random>
@@ -16,12 +17,12 @@ namespace Evolution
     {
 
         Organism::Attributes attributes;
-        attributes.energy = 100;
-        attributes.speed = rand() % 5 + 1;
-        attributes.stamina = 100;
-        attributes.aggression = rand() % 200;
-        attributes.visionConeAngle = rand() % 46 + 45;
-        attributes.visionDepth = rand() % 100 + 30;
+        attributes.energy = GetRandomValueInRange(Organism::MinSpawnEnergy, Organism::MaxSpawnEnergy);
+        attributes.speed = GetRandomValueInRange(Organism::MinSpawnSpeed, Organism::MaxSpawnSpeed);
+        attributes.stamina = GetRandomValueInRange(Organism::MinSpawnStamina, Organism::MaxSpawnStamina);
+        attributes.aggression = GetRandomValueInRange(Organism::MinSpawnAggression, Organism::MaxSpawnAggression);
+        attributes.visionConeAngle = GetRandomValueInRange(Organism::MinSpawnConeAngle, Organism::MaxSpawnConeAngle);
+        attributes.visionDepth = GetRandomValueInRange(Organism::MinSpawnConeDepth, Organism::MaxSpawnConeDepth);
         return attributes;
     }
 
@@ -32,11 +33,11 @@ namespace Evolution
 
     void CUtility::SetRandomSpawnStats(CEntityWrapper<sf::CircleShape> &entity)
     {
-        entity.setPosition(200, 200);
-        entity.setPointCount(rand() % 100 + 3);
-        entity.setFillColor(sf::Color::White);
-        entity.setRadius(rand() % 20 + 4);
-        entity.setRotation(rand() % 360);
+        entity.setPosition(GetRandomValueInRange(0, Utility::Width), GetRandomValueInRange(0, Utility::Height));
+        entity.setPointCount(GetRandomValueInRange(Organism::MinEdges, Organism::MaxEdges));
+        entity.setFillColor(Organism::SpawnColor);
+        entity.setRadius(GetRandomValueInRange(Organism::MinRadius, Organism::MaxRadius));
+        entity.setRotation(GetRandomValueInRange(0, Utility::TotalAngle));
         SetOriginToCenter(entity);
     }
 
@@ -73,23 +74,23 @@ namespace Evolution
         }
     }
 
-    Quadrant CUtility::GetQuadrant(Resolution degree)
+    Utility::Quadrant CUtility::GetQuadrant(Resolution degree)
     {
         if (degree >= 0 && degree < 90)
         {
-            return Quadrant::FIRST;
+            return Utility::Quadrant::FIRST;
         }
         else if (degree >= 90 && degree < 180)
         {
-            return Quadrant::SECOND;
+            return Utility::Quadrant::SECOND;
         }
         else if (degree >= 180 && degree < 270)
         {
-            return Quadrant::THIRD;
+            return Utility::Quadrant::THIRD;
         }
         else
         {
-            return Quadrant::FOURTH;
+            return Utility::Quadrant::FOURTH;
         }
     }
 
@@ -106,15 +107,25 @@ namespace Evolution
 
     sf::Color CUtility::GetRandomColor()
     {
-        return sf::Color(rand() % 256, rand() % 256, rand() % 256, rand() % 256);
+        return sf::Color(GetRandomValueInRange(0, Utility::MaxColorVal), GetRandomValueInRange(0, Utility::MaxColorVal), GetRandomValueInRange(0, Utility::MaxColorVal), GetRandomValueInRange(0, Utility::MaxColorVal));
     }
 
     NFResolution32 CUtility::GetRandomValueInRange(NFResolution32 low, NFResolution32 high)
     {
         std::random_device rd;  // Will be used to obtain a seed for the random number engine
         std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
-        std::uniform_int_distribution<NFResolution32> dis(low, high);
+        std::uniform_int_distribution<NFResolution32> dis(low, high - 1);
 
         return dis(gen);
+    }
+
+    Utility::Choice CUtility::HeadsOrTails()
+    {
+        return (GetRandomValueInRange(0, 2) == 0) ? Utility::Choice::HEADS : Utility::Choice::TAILS;
+    }
+
+    NFResolution16 CUtility::GetProbability()
+    {
+        return GetRandomValueInRange(0, Utility::TotalProbability);
     }
 }

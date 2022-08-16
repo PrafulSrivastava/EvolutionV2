@@ -8,7 +8,7 @@ namespace Evolution::Organism
     {
         m_species = Species::ALGAE;
         m_attributes = std::make_shared<Attributes>(CUtility::GenerateRandomAttributes());
-        if (rand() % 2 == 0)
+        if (CUtility::HeadsOrTails() == Utility::Choice::HEADS)
         {
             m_attributes->type = OrganismType::OMNIVORE;
         }
