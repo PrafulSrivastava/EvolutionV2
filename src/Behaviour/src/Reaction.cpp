@@ -178,7 +178,7 @@ namespace Evolution
 
             case Behaviour::ReactionType::GROUP:
                 operations.push_back(Movement::MovementOperation::ChangeMotionToGroup);
-                // operations.push_back(Movement::MovementOperation::DecrementSpeed);
+                operations.push_back(Movement::MovementOperation::DecrementSpeed);
                 break;
 
             case Behaviour::ReactionType::FIGHT:

@@ -28,11 +28,18 @@ namespace Evolution
         constexpr auto FAT = 0.05;
         constexpr auto WATER = 0.7;
     }
+
+    namespace Manager
+    {
+        using Priority = Resolution;
+        using EntityId = NFResolution32;
+        constexpr auto OrganismCount = 4;
+    }
     namespace Utility
     {
-        constexpr auto Height = 600;
+        constexpr auto Height = 200;
         constexpr auto FrameLimit = 120;
-        constexpr auto Width = 800;
+        constexpr auto Width = 200;
         constexpr auto WindowName = "EVOLUTION";
         constexpr auto Pi = 3.147;
         constexpr auto TotalAngle = 360;
@@ -43,8 +50,8 @@ namespace Evolution
         constexpr auto ProbabilityAgainst = 30;
         constexpr auto MaxColorVal = 254;
         constexpr auto StepReductionFactor = 1;
-        constexpr auto SpeedReductionFactor = 0.01;
-        constexpr auto SpeedEnhancementFactor = 0.01;
+        constexpr auto SpeedReductionFactor = 1;
+        constexpr auto SpeedEnhancementFactor = 1;
 
         enum Quadrant : uint8_t
         {
@@ -83,11 +90,11 @@ namespace Evolution
             IncrementSpeed = 0,
             DecrementSpeed,
             RotateBy180,
-            RotateBy90,
+            RotateBy90 = 3,
             RotateByRandom,
             ChangeMotionToKill,
             ChangeMotionToGroup,
-            ChangeMotionToIgnore,
+            ChangeMotionToIgnore = 7,
             ChangeMotionToFight,
             ChangeMotionToRun,
         };
@@ -141,23 +148,50 @@ namespace Evolution
             MessageType message;
         };
 
-        constexpr auto MaxSpawnEnergy = 100;
-        constexpr auto MinSpawnEnergy = 50;
-        constexpr auto MaxSpawnStamina = 100;
-        constexpr auto MinSpawnStamina = 60;
+        constexpr auto MaxSpawnEnergy = 50;
+        constexpr auto MinSpawnEnergy = 0;
+        constexpr auto CarnivoreEnergyOffset = 50;
+        constexpr auto HerbivoreEnergyOffset = 20;
+        constexpr auto OmnivoreEnergyOffset = 35;
+
+        constexpr auto MaxSpawnStamina = 50;
+        constexpr auto MinSpawnStamina = 0;
+        constexpr auto CarnivoreStaminaOffset = 20;
+        constexpr auto HerbivoreStaminaOffset = 50;
+        constexpr auto OmnivoreStaminaOffset = 35;
+
         constexpr auto MaxSpawnConeAngle = 90;
         constexpr auto MinSpawnConeAngle = 45;
+        constexpr auto CarnivoreConeAngleOffset = 0;
+        constexpr auto HerbivoreConeAngleOffset = 50;
+        constexpr auto OmnivoreConeAngleOffset = 15;
+
         constexpr auto MaxSpawnConeDepth = 100;
         constexpr auto MinSpawnConeDepth = 50;
-        constexpr auto MaxSpawnSpeed = 5;
-        constexpr auto MinSpawnSpeed = 1;
-        constexpr auto MaxSpawnAggression = 100;
+        constexpr auto CarnivoreConeDepthOffset = 0;
+        constexpr auto HerbivoreConeDepthOffset = 50;
+        constexpr auto OmnivoreConeDepthOffset = 15;
+
+        constexpr auto MaxSpawnSpeed = 50;
+        constexpr auto MinSpawnSpeed = 0;
+        constexpr auto CarnivoreSpeedOffset = 10;
+        constexpr auto HerbivoreSpeedOffset = 50;
+        constexpr auto OmnivoreSpeedOffset = 25;
+
+        constexpr auto MaxSpawnAggression = 50;
         constexpr auto MinSpawnAggression = 0;
+        constexpr auto CarnivoreAggressionOffset = 50;
+        constexpr auto HerbivoreAggressionOffset = 10;
+        constexpr auto OmnivoreAggressionOffset = 30;
+
         constexpr auto MinEdges = 3;
         constexpr auto MaxEdges = 10;
         constexpr auto MinRadius = 4;
         constexpr auto MaxRadius = 20;
         const sf::Color SpawnColor = sf::Color::White;
+        const sf::Color CarnivoreSpawnColor = sf::Color::Red;
+        const sf::Color HerbivoreSpawnColor = sf::Color::Green;
+        const sf::Color OmnivoreSpawnColor = sf::Color::Yellow;
     }
 
     namespace Behaviour

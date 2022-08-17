@@ -1,8 +1,8 @@
 #include "Manager.hpp"
 #include "Movement.hpp"
 #include "IConfig.hpp"
-#include "Bacteria.hpp"
-#include "Algae.hpp"
+
+#include "SingleCelledOrganism.hpp"
 #include "CUtility.hpp"
 #include "BehaviourHandler.hpp"
 #include <math.h>
@@ -47,20 +47,12 @@ namespace Evolution::Manager
     {
 
         std::shared_ptr<Evolution::Organism::IOrganismEntity> bacteria;
-        std::shared_ptr<Evolution::Organism::IOrganismEntity> algae;
+        std::shared_ptr<Evolution::Organism::IOrganismEntity> SingleCelledOrganism;
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < OrganismCount; i++)
         {
-            if (CUtility::HeadsOrTails() == Utility::Choice::HEADS)
-            {
-                std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::Algae>();
-                AddEntity(org);
-            }
-            else
-            {
-                std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::Bacteria>();
-                AddEntity(org);
-            }
+            std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(static_cast<Organism::OrganismType>(CUtility::GetRandomValueInRange(0, 3)));
+            AddEntity(org);
         }
     }
 
@@ -85,7 +77,15 @@ namespace Evolution::Manager
 
                 if (IsInVision(m_matrix->GetEntity(i), m_matrix->GetEntity(j)))
                 {
+                    m_matrix->SetTargetEncounteredInfo(i, j);
+                    auto mostPriorityTargetId = m_matrix->CalculateMostPriorityTarget(i);
+                    m_matrix->GetEntity(i)->SetMostPriorityTarget(mostPriorityTargetId);
+                    std::cout << "Id: " << i << " Most Priority: " << mostPriorityTargetId << std::endl;
                     m_matrix->GetEntity(i)->OnEncounter(m_matrix->GetEntity(i)->GetAttributes(), m_matrix->GetEntity(j)->GetAttributes());
+                }
+                else
+                {
+                    // Remove
                 }
 
                 if (HasCollided(m_matrix->GetEntity(i), m_matrix->GetEntity(j)))

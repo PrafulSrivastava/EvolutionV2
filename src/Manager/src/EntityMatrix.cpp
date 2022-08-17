@@ -6,7 +6,7 @@ namespace Evolution::Manager
     {
     }
 
-    EntityMatrix::EntityId EntityMatrix::AddEntity(std::shared_ptr<Evolution::Organism::IOrganismEntity> org)
+    EntityId EntityMatrix::AddEntity(std::shared_ptr<Evolution::Organism::IOrganismEntity> org)
     {
         m_entityMatrix[++m_entityId];
         m_organismList.push_back(org);
@@ -14,18 +14,38 @@ namespace Evolution::Manager
         return m_entityId;
     }
 
-    std::shared_ptr<Evolution::Organism::IOrganismEntity> EntityMatrix::GetEntity(const EntityMatrix::EntityId &id)
+    EntityId EntityMatrix::CalculateMostPriorityTarget(Evolution::Manager::EntityId id)
+    {
+        Priority max = INT32_MIN;
+        EntityId idMax;
+
+        std::cout << "Org Id:" << id << " Org Type: " << static_cast<int>(m_organismList[id]->GetAttributes()->type) << std::endl;
+
+        for (auto target : m_entityMatrix[id])
+        {
+            std::cout << "Target Id:" << target.first << " Priority: " << target.second << " Target Type: " << static_cast<int>(m_organismList[target.first]->GetAttributes()->type) << std::endl;
+            if (target.second >= max)
+            {
+                max = target.second;
+                idMax = target.first;
+            }
+        }
+
+        return idMax;
+    }
+
+    std::shared_ptr<Evolution::Organism::IOrganismEntity> EntityMatrix::GetEntity(const EntityId &id)
     {
         return m_organismList[id];
     }
 
-    void EntityMatrix::RemoveEntity(const EntityMatrix::EntityId &org)
+    void EntityMatrix::RemoveEntity(const EntityId &org)
     {
         m_entityMatrix.erase(org);
         m_organismList.erase(m_organismList.begin() + org);
     }
 
-    void EntityMatrix::SetTargetEncounteredInfo(const EntityMatrix::EntityId &org, const EntityMatrix::EntityId &target)
+    void EntityMatrix::SetTargetEncounteredInfo(const EntityId &org, const EntityId &target)
     {
         auto itorg = m_entityMatrix.find(org);
         if (itorg != m_entityMatrix.end())
@@ -34,16 +54,16 @@ namespace Evolution::Manager
         }
     }
 
-    void EntityMatrix::RemoveTargetEncounteredInfo(const EntityMatrix::EntityId &org, const EntityMatrix::EntityId &target)
+    void EntityMatrix::RemoveTargetEncounteredInfo(const EntityId &org, const EntityId &target)
     {
         auto itorg = m_entityMatrix.find(org);
         itorg->second.erase(target);
     }
 
-    EntityMatrix::Priority
-    EntityMatrix::FetchPriority(const EntityMatrix::EntityId &org, const EntityMatrix::EntityId &target)
+    Priority
+    EntityMatrix::FetchPriority(const EntityId &org, const EntityId &target)
     {
-        Priority priority;
+        Priority priority{0}, typePriority{0};
 
         auto orgInfo = m_organismList[org]->GetAttributes();
         auto targetInfo = m_organismList[target]->GetAttributes();
@@ -53,31 +73,47 @@ namespace Evolution::Manager
         Resolution dStamina = targetInfo->stamina - orgInfo->stamina;
         Resolution dAggression = targetInfo->aggression - orgInfo->aggression;
 
-        switch (m_organismList[target]->GetAttributes()->type)
+        std::cout << "dSpeed:" << dSpeed << std::endl;
+        std::cout << "dEnergy:" << dEnergy << std::endl;
+        std::cout << "dStamina:" << dStamina << std::endl;
+        std::cout << "dAggression:" << dAggression << std::endl;
+
+        if (orgInfo->type != targetInfo->type)
         {
-        case Organism::OrganismType::CARNIVORE:
-        {
-            priority = 0.3 * (dSpeed + dStamina) - 0.7 * (dEnergy + dAggression);
-            break;
+            switch (targetInfo->type)
+            {
+            case Organism::OrganismType::CARNIVORE:
+            {
+                typePriority += 100;
+                break;
+            }
+
+            case Organism::OrganismType::HERBIVORE:
+            {
+                typePriority += 100;
+                break;
+            }
+
+            case Organism::OrganismType::OMNIVORE:
+            {
+                typePriority += 50;
+                break;
+            }
+
+            default:
+                break;
+            }
         }
 
-        case Organism::OrganismType::HERBIVORE:
-        {
-            priority = 0.5 * (dSpeed + dStamina) + 0.5 * (dEnergy + dAggression);
-            break;
-        }
+        std::cout << "typePriority:" << typePriority << std::endl;
 
-        case Organism::OrganismType::OMNIVORE:
-        {
-            priority = 0.4 * (dSpeed + dStamina) - 0.6 * (dEnergy + dAggression);
-            break;
-        }
+        priority += 0.35 * (dAggression + dEnergy) + 0.15 * (dSpeed + dStamina);
+        std::cout << "priority:" << priority << std::endl;
 
-        default:
-            break;
-        }
+        priority += (0.50 * priority + 0.5 * (typePriority));
+        std::cout << "priority:" << priority << std::endl;
 
-        return priority * 10;
+        return priority;
     }
 
     NFResolution32 EntityMatrix::GetEntityCount()

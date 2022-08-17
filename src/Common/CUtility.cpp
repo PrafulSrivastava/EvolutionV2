@@ -13,7 +13,7 @@ namespace Evolution
         m_windowPtr = window;
     }
 
-    Organism::Attributes CUtility::GenerateRandomAttributes()
+    Organism::Attributes CUtility::GenerateRandomAttributes(Organism::OrganismType type)
     {
 
         Organism::Attributes attributes;
@@ -23,7 +23,60 @@ namespace Evolution
         attributes.aggression = GetRandomValueInRange(Organism::MinSpawnAggression, Organism::MaxSpawnAggression);
         attributes.visionConeAngle = GetRandomValueInRange(Organism::MinSpawnConeAngle, Organism::MaxSpawnConeAngle);
         attributes.visionDepth = GetRandomValueInRange(Organism::MinSpawnConeDepth, Organism::MaxSpawnConeDepth);
+        switch (type)
+        {
+        case Organism::OrganismType::CARNIVORE:
+        {
+            GenerateRandomCarnivoreAttributes(attributes);
+            break;
+        }
+
+        case Organism::OrganismType::HERBIVORE:
+        {
+            GenerateRandomHerbivoreAttributes(attributes);
+            break;
+        }
+
+        case Organism::OrganismType::OMNIVORE:
+        {
+            GenerateRandomOmnivoreAttributes(attributes);
+            break;
+        }
+
+        default:
+            break;
+        }
         return attributes;
+    }
+
+    void CUtility::GenerateRandomCarnivoreAttributes(Organism::Attributes &attributes)
+    {
+        attributes.energy += Organism::CarnivoreEnergyOffset;
+        attributes.speed += Organism::CarnivoreSpeedOffset;
+        attributes.stamina += Organism::CarnivoreStaminaOffset;
+        attributes.aggression += Organism::CarnivoreAggressionOffset;
+        attributes.visionConeAngle += Organism::CarnivoreConeAngleOffset;
+        attributes.visionDepth += Organism::CarnivoreConeDepthOffset;
+    }
+
+    void CUtility::GenerateRandomHerbivoreAttributes(Organism::Attributes &attributes)
+    {
+        attributes.energy += Organism::HerbivoreEnergyOffset;
+        attributes.speed += Organism::HerbivoreSpeedOffset;
+        attributes.stamina += Organism::HerbivoreStaminaOffset;
+        attributes.aggression += Organism::HerbivoreAggressionOffset;
+        attributes.visionConeAngle += Organism::HerbivoreConeAngleOffset;
+        attributes.visionDepth += Organism::HerbivoreConeDepthOffset;
+    }
+
+    void CUtility::GenerateRandomOmnivoreAttributes(Organism::Attributes &attributes)
+    {
+        attributes.energy += Organism::OmnivoreEnergyOffset;
+        attributes.speed += Organism::OmnivoreSpeedOffset;
+        attributes.stamina += Organism::OmnivoreStaminaOffset;
+        attributes.aggression += Organism::OmnivoreAggressionOffset;
+        attributes.visionConeAngle += Organism::OmnivoreConeAngleOffset;
+        attributes.visionDepth += Organism::OmnivoreConeDepthOffset;
     }
 
     void CUtility::SetOriginToCenter(CEntityWrapper<sf::CircleShape> &entity)
@@ -31,14 +84,38 @@ namespace Evolution
         entity.setOrigin(entity.getRadius(), entity.getRadius());
     }
 
-    void CUtility::SetRandomSpawnStats(CEntityWrapper<sf::CircleShape> &entity)
+    void CUtility::SetRandomSpawnStats(CEntityWrapper<sf::CircleShape> &entity, Organism::OrganismType type)
     {
         entity.setPosition(GetRandomValueInRange(0, Utility::Width), GetRandomValueInRange(0, Utility::Height));
         entity.setPointCount(GetRandomValueInRange(Organism::MinEdges, Organism::MaxEdges));
-        entity.setFillColor(Organism::SpawnColor);
+
         entity.setRadius(GetRandomValueInRange(Organism::MinRadius, Organism::MaxRadius));
         entity.setRotation(GetRandomValueInRange(0, Utility::TotalAngle));
         SetOriginToCenter(entity);
+
+        switch (type)
+        {
+        case Organism::OrganismType::CARNIVORE:
+        {
+            entity.setFillColor(Organism::CarnivoreSpawnColor);
+            break;
+        }
+
+        case Organism::OrganismType::HERBIVORE:
+        {
+            entity.setFillColor(Organism::HerbivoreSpawnColor);
+            break;
+        }
+
+        case Organism::OrganismType::OMNIVORE:
+        {
+            entity.setFillColor(Organism::OmnivoreSpawnColor);
+            break;
+        }
+
+        default:
+            break;
+        }
     }
 
     Resolution CUtility::GetDistanceBetweenPoints(sf::Vector2f p1, sf::Vector2f p2)

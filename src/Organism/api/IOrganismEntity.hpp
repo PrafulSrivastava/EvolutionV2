@@ -29,10 +29,13 @@ namespace Evolution
                 m_behaviour->OnEncounter(orgAttributes, targetAttributes);
             }
 
+            void SetMostPriorityTarget(Manager::EntityId index)
+            {
+                m_behaviour->SetMostPriorityTarget(index);
+            }
+
             void OnReaction(Movement::Operations operations)
             {
-                std::lock_guard<std::mutex> lck(m_mtx);
-
                 m_operations.clear();
                 m_operations = std::move(operations);
                 m_reactionChanged = true;
@@ -50,8 +53,6 @@ namespace Evolution
 
             Movement::Operations FetchMovementOperations()
             {
-                std::lock_guard<std::mutex> lck(m_mtx);
-
                 if (m_reactionChanged)
                 {
                     m_reactionChanged = false;

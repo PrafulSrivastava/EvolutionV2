@@ -1,5 +1,4 @@
 #include "Vacuole.hpp"
-#include "Bacteria.hpp"
 
 #include <iostream>
 #include <memory>

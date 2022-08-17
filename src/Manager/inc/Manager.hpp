@@ -29,7 +29,6 @@ namespace Evolution::Manager
     private:
         bool IsInVision(std::shared_ptr<Evolution::Organism::IOrganismEntity> viewer, std::shared_ptr<Evolution::Organism::IOrganismEntity> viewee);
         bool HasCollided(std::shared_ptr<Evolution::Organism::IOrganismEntity> viewer, std::shared_ptr<Evolution::Organism::IOrganismEntity> viewee);
-
         std::shared_ptr<IMovement> m_movement{nullptr};
         std::shared_ptr<EntityMatrix> m_matrix{nullptr};
     };

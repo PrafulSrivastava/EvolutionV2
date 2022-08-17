@@ -16,7 +16,7 @@ namespace Evolution
         INVALID = 200,
         VACOULE = 0,
         BACTERIA = 1,
-        ALGAE = 2
+        SingleCelledOrganism = 2
     };
 
     template <typename Entity>

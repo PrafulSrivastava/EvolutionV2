@@ -13,7 +13,7 @@ namespace Evolution
         struct OrganismReactionInfo
         {
             ReactionType reaction;
-            sf::Vector2f position;
+            Manager::EntityId id;
         };
 
         using MapOfOrganismInfo = std::unordered_map<NFResolution32, OrganismReactionInfo>;
@@ -28,10 +28,7 @@ namespace Evolution
             void OnEncounter(std::shared_ptr<Organism::Attributes> orgAttributes, std::shared_ptr<Organism::Attributes> targetAttributes)
             {
                 auto reaction = Reaction::GetInstance().FetchReaction(orgAttributes, targetAttributes);
-
-                // Need to replace with priority queue
-                std::lock_guard<std::mutex> lck(m_mtx);
-                m_organismsInView[targetAttributes->id] = {reaction, targetAttributes->position};
+                m_organismsInView[targetAttributes->id] = {reaction, targetAttributes->id};
                 m_hasNewPoi = true;
             }
 
@@ -44,9 +41,14 @@ namespace Evolution
             {
             }
 
+            virtual void SetMostPriorityTarget(Manager::EntityId index)
+            {
+                m_mostPriorityTarget = index;
+            }
+
         protected:
             MapOfOrganismInfo m_organismsInView;
-            std::mutex m_mtx;
+            Manager::EntityId m_mostPriorityTarget;
             bool m_hasNewPoi{false};
             ReactionCb m_reactionCb{nullptr};
             Organism::OrganismType m_type{Organism::OrganismType::INVALID};

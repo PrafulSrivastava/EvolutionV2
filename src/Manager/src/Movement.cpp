@@ -103,8 +103,8 @@ namespace Evolution::Manager
         }
 
         auto ratio = CUtility::GetMovementRatio(m_matrix->GetEntity(info.organismId)->getRotation());
-        auto yToMove = ratio.y * attributes->speed;
-        auto xToMove = ratio.x * attributes->speed;
+        auto yToMove = ratio.y * attributes->speed / 100;
+        auto xToMove = ratio.x * attributes->speed / 100;
         auto newPos = sf::Vector2f(m_matrix->GetEntity(info.organismId)->getPosition().x + xToMove, m_matrix->GetEntity(info.organismId)->getPosition().y + yToMove);
         ResetOnBoundryEncounter(newPos);
 
@@ -120,6 +120,7 @@ namespace Evolution::Manager
 
     void Movement::UpdateMovementOperation(NFResolution16 id, Evolution::Movement::MovementOperation operation)
     {
+        std::cout << __func__ << " Org: " << id << " Operation: " << static_cast<int>(operation) << std::endl;
         auto org = m_matrix->GetEntity(m_organismsMovementInfo[id].organismId);
         switch (operation)
         {
@@ -142,19 +143,19 @@ namespace Evolution::Manager
             org->setRotation(org->getRotation() + CUtility::GetRandomValueInRange(0, Utility::TotalAngle));
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToKill:
-            org->setFillColor(sf::Color::Red);
+            // org->setFillColor(sf::Color::Red);
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToGroup:
-            org->setFillColor(sf::Color::Green);
+            // org->setFillColor(sf::Color::Green);
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToIgnore:
-            org->setFillColor(sf::Color::Cyan);
+            // org->setFillColor(sf::Color::Cyan);
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToFight:
-            org->setFillColor(sf::Color::Yellow);
+            // org->setFillColor(sf::Color::Yellow);
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToRun:
-            org->setFillColor(sf::Color::Magenta);
+            // org->setFillColor(sf::Color::Magenta);
             break;
         }
     }
