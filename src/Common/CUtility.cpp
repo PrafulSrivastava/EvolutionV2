@@ -7,10 +7,13 @@
 namespace Evolution
 {
     std::shared_ptr<sf::RenderWindow> CUtility::m_windowPtr = nullptr;
+    std::map<std::size_t, std::string> CUtility::m_enumTranslator{};
+    sf::Font CUtility::m_font;
 
     void CUtility::Init(std::shared_ptr<sf::RenderWindow> window)
     {
         m_windowPtr = window;
+        m_font.loadFromFile(Utility::FontPath);
     }
 
     Organism::Attributes CUtility::GenerateRandomAttributes(Organism::OrganismType type)
@@ -123,6 +126,26 @@ namespace Evolution
         return std::sqrt(std::pow((p1.x - p2.x), 2) + std::pow((p1.y - p2.y), 2));
     }
 
+    sf::Text CUtility::GenerateLabels(Manager::EntityId id)
+    {
+        sf::Text text;
+        text.setFillColor(Utility::LabelColor);
+        text.setCharacterSize(Utility::LabelSize);
+        text.setFont(m_font);
+        text.setStyle(sf::Text::Style::Bold);
+        text.setString(std::to_string(id));
+        sf::FloatRect textRect = text.getLocalBounds();
+        text.setOrigin(textRect.left + textRect.width / 2.0f,
+                       textRect.top + textRect.height / 2.0f);
+        return text;
+    }
+
+    void CUtility::AddLabels(sf::Text &label, sf::Vector2f origin)
+    {
+        label.setPosition(origin);
+        m_windowPtr->draw(label);
+    }
+
     void CUtility::ShowVisionInfo(Resolution depth, Resolution cone, sf::Vector2f origin, Resolution direction)
     {
         std::vector<sf::Vector2f> pointsOnDiameter;
@@ -145,8 +168,8 @@ namespace Evolution
         {
             sf::CircleShape tempCircle;
             tempCircle.setPosition(point);
-            tempCircle.setRadius(1);
-            tempCircle.setFillColor(GetRandomColor());
+            tempCircle.setRadius(Utility::ConeWidth);
+            tempCircle.setFillColor(Utility::ConeColor);
             m_windowPtr->draw(tempCircle);
         }
     }
@@ -204,5 +227,47 @@ namespace Evolution
     NFResolution16 CUtility::GetProbability()
     {
         return GetRandomValueInRange(0, Utility::TotalProbability);
+    }
+
+    void CUtility::RegisterAllEnums()
+    {
+        using namespace Utility;
+        RegisterEnum<Quadrant>(Quadrant::FIRST, "FIRST");
+        RegisterEnum<Quadrant>(Quadrant::SECOND, "SECOND");
+        RegisterEnum<Quadrant>(Quadrant::THIRD, "THIRD");
+        RegisterEnum<Quadrant>(Quadrant::FOURTH, "FOURTH");
+
+        RegisterEnum<Hemisphere>(Hemisphere::LOWER, "LOWER");
+        RegisterEnum<Hemisphere>(Hemisphere::UPPER, "UPPER");
+
+        RegisterEnum<Choice>(Choice::HEADS, "HEADS");
+        RegisterEnum<Choice>(Choice::TAILS, "TAILS");
+
+        using namespace Movement;
+        RegisterEnum<MovementOperation>(MovementOperation::ChangeMotionToFight, "ChangeMotionToFight");
+        RegisterEnum<MovementOperation>(MovementOperation::ChangeMotionToGroup, "ChangeMotionToGroup");
+        RegisterEnum<MovementOperation>(MovementOperation::ChangeMotionToIgnore, "ChangeMotionToIgnore");
+        RegisterEnum<MovementOperation>(MovementOperation::ChangeMotionToKill, "ChangeMotionToKill");
+        RegisterEnum<MovementOperation>(MovementOperation::ChangeMotionToRun, "ChangeMotionToRun");
+        RegisterEnum<MovementOperation>(MovementOperation::DecrementSpeed, "DecrementSpeed");
+        RegisterEnum<MovementOperation>(MovementOperation::IncrementSpeed, "IncrementSpeed");
+        RegisterEnum<MovementOperation>(MovementOperation::RotateBy180, "RotateBy180");
+        RegisterEnum<MovementOperation>(MovementOperation::RotateBy90, "RotateBy90");
+        RegisterEnum<MovementOperation>(MovementOperation::RotateByRandom, "RotateByRandom");
+
+        RegisterEnum<MovementType>(MovementType::Purposely, "Purposely");
+        RegisterEnum<MovementType>(MovementType::Randomly, "Randomly");
+
+        using namespace Organism;
+        RegisterEnum<OrganismType>(OrganismType::CARNIVORE, "CARNIVORE");
+        RegisterEnum<OrganismType>(OrganismType::HERBIVORE, "HERBIVORE");
+        RegisterEnum<OrganismType>(OrganismType::OMNIVORE, "OMNIVORE");
+
+        using namespace Behaviour;
+        RegisterEnum<ReactionType>(ReactionType::FIGHT, "FIGHT");
+        RegisterEnum<ReactionType>(ReactionType::GROUP, "GROUP");
+        RegisterEnum<ReactionType>(ReactionType::IGNORE, "IGNORE");
+        RegisterEnum<ReactionType>(ReactionType::KILL, "KILL");
+        RegisterEnum<ReactionType>(ReactionType::RUN, "RUN");
     }
 }

@@ -5,6 +5,9 @@
 #include <functional>
 #include <SFML/Graphics.hpp>
 #include <iostream>
+
+#define pEnum(x) CUtility::GetEnumName<>(x)
+
 namespace Evolution
 {
     using Resolution = float;
@@ -37,9 +40,9 @@ namespace Evolution
     }
     namespace Utility
     {
-        constexpr auto Height = 200;
+        constexpr auto Height = 800;
         constexpr auto FrameLimit = 120;
-        constexpr auto Width = 200;
+        constexpr auto Width = 800;
         constexpr auto WindowName = "EVOLUTION";
         constexpr auto Pi = 3.147;
         constexpr auto TotalAngle = 360;
@@ -52,6 +55,11 @@ namespace Evolution
         constexpr auto StepReductionFactor = 1;
         constexpr auto SpeedReductionFactor = 1;
         constexpr auto SpeedEnhancementFactor = 1;
+        constexpr auto ConeWidth = 1;
+        const auto ConeColor = sf::Color::White;
+        constexpr auto LabelSize = 20;
+        const auto LabelColor = sf::Color::Black;
+        constexpr auto FontPath = "../resource/font/FUTRFW.TTF";
 
         enum Quadrant : uint8_t
         {
@@ -127,11 +135,6 @@ namespace Evolution
             OMNIVORE = 2
         };
 
-        enum class MessageType : uint8_t
-        {
-            INVALID = 254,
-            GROUP = 1
-        };
         struct Attributes
         {
             Resolution speed{0};
@@ -145,7 +148,7 @@ namespace Evolution
             sf::Vector2f position;
 
             OrganismType type;
-            MessageType message;
+            sf::Text label;
         };
 
         constexpr auto MaxSpawnEnergy = 50;
@@ -186,8 +189,8 @@ namespace Evolution
 
         constexpr auto MinEdges = 3;
         constexpr auto MaxEdges = 10;
-        constexpr auto MinRadius = 4;
-        constexpr auto MaxRadius = 20;
+        constexpr auto MinRadius = 20;
+        constexpr auto MaxRadius = 30;
         const sf::Color SpawnColor = sf::Color::White;
         const sf::Color CarnivoreSpawnColor = sf::Color::Red;
         const sf::Color HerbivoreSpawnColor = sf::Color::Green;

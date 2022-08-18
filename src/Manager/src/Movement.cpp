@@ -7,47 +7,52 @@ namespace Evolution::Manager
     Movement::Movement(std::shared_ptr<EntityMatrix> matrix) : m_matrix(matrix)
     {
     }
-    NFResolution16 Movement::RegisterToMove(NFResolution32 orgId, Evolution::Movement::MovementType type)
+    Evolution::Manager::EntityId Movement::RegisterToMove(Evolution::Manager::EntityId orgId, Evolution::Movement::MovementType type)
     {
         MovementInfo info;
-        info.organismId = orgId;
         info.type = type;
         info.steps = 0;
         info.hemisphere = Utility::Hemisphere::UPPER;
         info.quadrant = Utility::Quadrant::FIRST;
 
-        m_organismsMovementInfo.push_back(info);
+        m_organismsMovementInfo.insert({orgId, info});
         return ++m_subscriptionId;
     }
 
-    void Movement::UpdateMovement(NFResolution16 id, Evolution::Movement::MovementType type)
+    void Movement::UpdateMovement(Evolution::Manager::EntityId id, Evolution::Movement::MovementType type)
     {
         m_organismsMovementInfo[id].type = type;
     }
 
-    void Movement::UnRegisterToMove(NFResolution16 id)
+    void Movement::UnRegisterToMove(Evolution::Manager::EntityId id)
     {
-        m_organismsMovementInfo.erase(m_organismsMovementInfo.begin() + id);
+        auto itr = m_organismsMovementInfo.find(id);
+        if (itr != m_organismsMovementInfo.end())
+        {
+            m_organismsMovementInfo.erase(itr);
+        }
     }
 
     void Movement::Move()
     {
-        for (NFResolution32 i = 0; i < m_organismsMovementInfo.size(); i++)
+        for (auto &org : m_organismsMovementInfo)
         {
-            switch (m_organismsMovementInfo[i].type)
+            switch (org.second.type)
             {
             case Evolution::Movement::MovementType::Randomly:
-                MoveRandomly(m_organismsMovementInfo[i]);
+                MoveRandomly(org.first);
                 break;
             case Evolution::Movement::MovementType::Purposely:
-                MovePurposely(m_organismsMovementInfo[i]);
+                MovePurposely(org.first);
                 break;
             }
 
-            for (auto operation : m_matrix->GetEntity(m_organismsMovementInfo[i].organismId)->FetchMovementOperations())
+            std::cout << "Performing operations for: " << org.first << std::endl;
+            for (auto operation : m_matrix->GetEntity(org.first)->FetchMovementOperations())
             {
-                UpdateMovementOperation(i, operation);
+                UpdateMovementOperation(org.first, operation);
             }
+            std::cout << std::endl;
         }
     }
 
@@ -72,10 +77,10 @@ namespace Evolution::Manager
         }
     }
 
-    void Movement::MoveRandomly(MovementInfo &info)
+    void Movement::MoveRandomly(Evolution::Manager::EntityId id)
     {
-
-        auto attributes = m_matrix->GetEntity(info.organismId)->GetAttributes();
+        auto &info = m_organismsMovementInfo[id];
+        auto attributes = m_matrix->GetEntity(id)->GetAttributes();
         if (info.steps <= 0)
         {
             info.steps = CUtility::GetRandomValueInRange(Evolution::Movement::MinSteps, Evolution::Movement::MaxSteps);
@@ -98,30 +103,31 @@ namespace Evolution::Manager
                 info.quadrant = static_cast<Utility::Quadrant>(quadCnt);
             }
 
-            auto angle = CUtility::GetRandomValueInRange(0, Utility::TotalAngle / Utility::TotalQuadrant) + (Utility::TotalAngle * info.quadrant);
-            m_matrix->GetEntity(info.organismId)->setRotation(angle);
+            auto angle = CUtility::GetRandomValueInRange(0, Utility::TotalAngle / Utility::TotalQuadrant);
+            angle += ((Utility::TotalAngle / Utility::TotalQuadrant) * info.quadrant);
+            m_matrix->GetEntity(id)->setRotation(angle);
         }
 
-        auto ratio = CUtility::GetMovementRatio(m_matrix->GetEntity(info.organismId)->getRotation());
+        auto ratio = CUtility::GetMovementRatio(m_matrix->GetEntity(id)->getRotation());
         auto yToMove = ratio.y * attributes->speed / 100;
         auto xToMove = ratio.x * attributes->speed / 100;
-        auto newPos = sf::Vector2f(m_matrix->GetEntity(info.organismId)->getPosition().x + xToMove, m_matrix->GetEntity(info.organismId)->getPosition().y + yToMove);
+        auto newPos = sf::Vector2f(m_matrix->GetEntity(id)->getPosition().x + xToMove, m_matrix->GetEntity(id)->getPosition().y + yToMove);
         ResetOnBoundryEncounter(newPos);
 
-        m_matrix->GetEntity(info.organismId)->setPosition(newPos);
+        m_matrix->GetEntity(id)->setPosition(newPos);
         info.steps -= Utility::StepReductionFactor;
     }
-    void Movement::MovePurposely(MovementInfo &info)
+    void Movement::MovePurposely(Evolution::Manager::EntityId)
     {
     }
     void Movement::MoveToPoint(sf::Vector2f)
     {
     }
 
-    void Movement::UpdateMovementOperation(NFResolution16 id, Evolution::Movement::MovementOperation operation)
+    void Movement::UpdateMovementOperation(Evolution::Manager::EntityId id, Evolution::Movement::MovementOperation operation)
     {
-        std::cout << __func__ << " Org: " << id << " Operation: " << static_cast<int>(operation) << std::endl;
-        auto org = m_matrix->GetEntity(m_organismsMovementInfo[id].organismId);
+        std::cout << "\t" << pEnum(operation) << std::endl;
+        auto org = m_matrix->GetEntity(id);
         switch (operation)
         {
         case Evolution::Movement::MovementOperation::IncrementSpeed:

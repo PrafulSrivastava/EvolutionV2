@@ -5,6 +5,7 @@
 #include "IEntity.hpp"
 #include <math.h>
 #include <memory>
+#include <map>
 #include <SFML/Graphics.hpp>
 
 namespace Evolution
@@ -28,9 +29,32 @@ namespace Evolution
         static void SetOriginToCenter(CEntityWrapper<sf::CircleShape> &);
         static Utility::Choice HeadsOrTails();
         static NFResolution16 GetProbability();
+        static void RegisterAllEnums();
+        template <typename T>
+        static void RegisterEnum(T enumVal, std::string enumName)
+        {
+            std::string key = typeid(enumVal).name();
+            key += static_cast<uint8_t>(enumVal);
+            auto hash = std::hash<std::string>{}(key);
+            m_enumTranslator[hash] = enumName;
+        }
+
+        template <typename T>
+        static std::string GetEnumName(T enumVal)
+        {
+            std::string key = typeid(enumVal).name();
+            key += static_cast<uint8_t>(enumVal);
+            auto hash = std::hash<std::string>{}(key);
+
+            return m_enumTranslator[hash];
+        }
+        static sf::Text GenerateLabels(Manager::EntityId id);
+        static void AddLabels(sf::Text &label, sf::Vector2f origin);
 
     private:
         static std::shared_ptr<sf::RenderWindow> m_windowPtr;
+        static std::map<std::size_t, std::string> m_enumTranslator;
+        static sf::Font m_font;
     };
 
 }

@@ -2,7 +2,7 @@
 #define MOVEMENT_HPP
 
 #include "IMovement.hpp"
-#include <vector>
+#include <unordered_map>
 #include <memory>
 #include "EntityMatrix.hpp"
 
@@ -18,19 +18,19 @@ namespace Evolution::Manager
         Movement(Movement &&) = default;
         Movement &operator=(Movement &&) = default;
 
-        NFResolution16 RegisterToMove(NFResolution32, Evolution::Movement::MovementType) override;
-        void UpdateMovement(NFResolution16, Evolution::Movement::MovementType) override;
-        void UnRegisterToMove(NFResolution16) override;
+        Evolution::Manager::EntityId RegisterToMove(Evolution::Manager::EntityId, Evolution::Movement::MovementType) override;
+        void UpdateMovement(Evolution::Manager::EntityId, Evolution::Movement::MovementType) override;
+        void UnRegisterToMove(Evolution::Manager::EntityId) override;
         void Move() override;
         void MoveToPoint(sf::Vector2f) override;
-        void UpdateMovementOperation(NFResolution16, Evolution::Movement::MovementOperation) override;
+        void UpdateMovementOperation(Evolution::Manager::EntityId, Evolution::Movement::MovementOperation) override;
 
     private:
-        void MoveRandomly(MovementInfo &);
-        void MovePurposely(MovementInfo &);
+        void MoveRandomly(Evolution::Manager::EntityId);
+        void MovePurposely(Evolution::Manager::EntityId);
         void ResetOnBoundryEncounter(sf::Vector2f &pos);
         NFResolution16 m_subscriptionId{-1};
-        std::vector<MovementInfo> m_organismsMovementInfo;
+        std::unordered_map<Evolution::Manager::EntityId, MovementInfo> m_organismsMovementInfo;
         std::shared_ptr<EntityMatrix> m_matrix{nullptr};
     };
 }

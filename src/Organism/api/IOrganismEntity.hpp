@@ -55,8 +55,10 @@ namespace Evolution
             {
                 if (m_reactionChanged)
                 {
+                    auto op = std::move(m_operations);
                     m_reactionChanged = false;
-                    return m_operations;
+                    m_operations.clear();
+                    return op;
                 }
 
                 return {};

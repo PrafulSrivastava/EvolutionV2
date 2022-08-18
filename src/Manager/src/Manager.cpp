@@ -14,6 +14,7 @@ namespace Evolution::Manager
         m_window = std::make_shared<sf::RenderWindow>(
             sf::VideoMode(Evolution::Utility::Width, Evolution::Utility::Height), Evolution::Utility::WindowName);
         CUtility::Init(m_window);
+        CUtility::RegisterAllEnums();
         m_matrix = std::make_shared<EntityMatrix>();
         m_movement = std::make_shared<Movement>(m_matrix);
     }
@@ -60,6 +61,7 @@ namespace Evolution::Manager
     {
         auto id = m_matrix->AddEntity(org);
         org->SetEntityId(id);
+        org->GetAttributes()->label = CUtility::GenerateLabels(org->GetAttributes()->id);
         org->Spawn();
         m_movement->RegisterToMove(id, Evolution::Movement::MovementType::Randomly);
     }
@@ -80,12 +82,13 @@ namespace Evolution::Manager
                     m_matrix->SetTargetEncounteredInfo(i, j);
                     auto mostPriorityTargetId = m_matrix->CalculateMostPriorityTarget(i);
                     m_matrix->GetEntity(i)->SetMostPriorityTarget(mostPriorityTargetId);
-                    std::cout << "Id: " << i << " Most Priority: " << mostPriorityTargetId << std::endl;
+                    std::cout << "Setting Most Priority Target for Organism Id: " << i << " to: " << mostPriorityTargetId << std::endl;
+                    std::cout << std::endl;
                     m_matrix->GetEntity(i)->OnEncounter(m_matrix->GetEntity(i)->GetAttributes(), m_matrix->GetEntity(j)->GetAttributes());
                 }
                 else
                 {
-                    // Remove
+                    m_matrix->ResetPriority(i, j);
                 }
 
                 if (HasCollided(m_matrix->GetEntity(i), m_matrix->GetEntity(j)))
@@ -127,6 +130,7 @@ namespace Evolution::Manager
                 m_matrix->GetEntity(i)->RunMainLoop();
                 m_window->draw(*(m_matrix->GetEntity(i)));
                 CUtility::ShowVisionInfo(m_matrix->GetEntity(i)->GetAttributes()->visionDepth, m_matrix->GetEntity(i)->GetAttributes()->visionConeAngle, m_matrix->GetEntity(i)->getPosition(), m_matrix->GetEntity(i)->getRotation());
+                CUtility::AddLabels(m_matrix->GetEntity(i)->GetAttributes()->label, m_matrix->GetEntity(i)->getPosition());
             }
 
             m_window->display();

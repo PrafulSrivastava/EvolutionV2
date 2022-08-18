@@ -1,4 +1,5 @@
 #include "EntityMatrix.hpp"
+#include "CUtility.hpp"
 
 namespace Evolution::Manager
 {
@@ -14,16 +15,25 @@ namespace Evolution::Manager
         return m_entityId;
     }
 
+    void EntityMatrix::ResetPriority(const EntityId &org, const EntityId &target)
+    {
+        auto itorg = m_entityMatrix.find(org);
+        if (itorg != m_entityMatrix.end())
+        {
+            itorg->second.insert({target, INT16_MIN});
+        }
+    }
+
     EntityId EntityMatrix::CalculateMostPriorityTarget(Evolution::Manager::EntityId id)
     {
         Priority max = INT32_MIN;
         EntityId idMax;
 
-        std::cout << "Org Id:" << id << " Org Type: " << static_cast<int>(m_organismList[id]->GetAttributes()->type) << std::endl;
+        std::cout << "Organism Id:" << id << " Organism Type: " << pEnum(m_organismList[id]->GetAttributes()->type) << std::endl;
 
         for (auto target : m_entityMatrix[id])
         {
-            std::cout << "Target Id:" << target.first << " Priority: " << target.second << " Target Type: " << static_cast<int>(m_organismList[target.first]->GetAttributes()->type) << std::endl;
+            std::cout << "Target Id:" << target.first << " Priority: " << target.second << " Target Type: " << pEnum(m_organismList[target.first]->GetAttributes()->type) << std::endl;
             if (target.second >= max)
             {
                 max = target.second;
@@ -73,11 +83,6 @@ namespace Evolution::Manager
         Resolution dStamina = targetInfo->stamina - orgInfo->stamina;
         Resolution dAggression = targetInfo->aggression - orgInfo->aggression;
 
-        std::cout << "dSpeed:" << dSpeed << std::endl;
-        std::cout << "dEnergy:" << dEnergy << std::endl;
-        std::cout << "dStamina:" << dStamina << std::endl;
-        std::cout << "dAggression:" << dAggression << std::endl;
-
         if (orgInfo->type != targetInfo->type)
         {
             switch (targetInfo->type)
@@ -105,13 +110,8 @@ namespace Evolution::Manager
             }
         }
 
-        std::cout << "typePriority:" << typePriority << std::endl;
-
         priority += 0.35 * (dAggression + dEnergy) + 0.15 * (dSpeed + dStamina);
-        std::cout << "priority:" << priority << std::endl;
-
         priority += (0.50 * priority + 0.5 * (typePriority));
-        std::cout << "priority:" << priority << std::endl;
 
         return priority;
     }

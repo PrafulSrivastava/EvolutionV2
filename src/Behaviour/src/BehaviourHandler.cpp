@@ -13,8 +13,6 @@ namespace Evolution::Behaviour
         auto reaction = ReactionType::INVALID;
         if (m_hasNewPoi)
         {
-            std::cout << __func__ << " New Target: " << m_mostPriorityTarget << " Reaction: " << static_cast<int>(m_organismsInView[m_mostPriorityTarget].reaction) << std::endl;
-
             reaction = m_organismsInView[m_mostPriorityTarget].reaction;
 
             auto operations = Reaction::GetInstance().React(m_type, reaction);
