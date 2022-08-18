@@ -36,7 +36,7 @@ namespace Evolution
     {
         using Priority = Resolution;
         using EntityId = NFResolution32;
-        constexpr auto OrganismCount = 4;
+        constexpr auto OrganismCount = 10;
     }
     namespace Utility
     {

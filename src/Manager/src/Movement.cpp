@@ -149,19 +149,19 @@ namespace Evolution::Manager
             org->setRotation(org->getRotation() + CUtility::GetRandomValueInRange(0, Utility::TotalAngle));
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToKill:
-            // org->setFillColor(sf::Color::Red);
+            org->setFillColor(sf::Color::Red);
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToGroup:
-            // org->setFillColor(sf::Color::Green);
+            org->setFillColor(sf::Color::Green);
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToIgnore:
-            // org->setFillColor(sf::Color::Cyan);
+            org->setFillColor(sf::Color::Cyan);
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToFight:
-            // org->setFillColor(sf::Color::Yellow);
+            org->setFillColor(sf::Color::Yellow);
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToRun:
-            // org->setFillColor(sf::Color::Magenta);
+            org->setFillColor(sf::Color::Magenta);
             break;
         }
     }
