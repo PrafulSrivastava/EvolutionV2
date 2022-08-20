@@ -25,7 +25,9 @@ namespace Evolution
         attributes.stamina = GetRandomValueInRange(Organism::MinSpawnStamina, Organism::MaxSpawnStamina);
         attributes.aggression = GetRandomValueInRange(Organism::MinSpawnAggression, Organism::MaxSpawnAggression);
         attributes.visionConeAngle = GetRandomValueInRange(Organism::MinSpawnConeAngle, Organism::MaxSpawnConeAngle);
+        // attributes.visionConeAngle = 360;
         attributes.visionDepth = GetRandomValueInRange(Organism::MinSpawnConeDepth, Organism::MaxSpawnConeDepth);
+        // attributes.visionDepth = 300;
         switch (type)
         {
         case Organism::OrganismType::CARNIVORE:
@@ -203,6 +205,11 @@ namespace Evolution
     Resolution CUtility::DegreeToRadians(Resolution degree)
     {
         return (degree * Utility::Pi) / (Utility::TotalAngle / 2);
+    }
+
+    Resolution CUtility::RadiansToDegree(Resolution radians)
+    {
+        return (radians / Utility::Pi) * (Utility::TotalAngle / 2);
     }
 
     sf::Color CUtility::GetRandomColor()

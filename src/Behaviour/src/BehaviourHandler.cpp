@@ -14,9 +14,11 @@ namespace Evolution::Behaviour
         if (m_hasNewPoi)
         {
             reaction = m_organismsInView[m_mostPriorityTarget].reaction;
+            // std::cout << "New POI: " << m_mostPriorityTarget << " for : " << m_orgId << " " << pEnum(reaction) << std::endl;
 
-            auto operations = Reaction::GetInstance().React(m_type, reaction);
+            Movement::MovementAttribute operations = {Reaction::GetInstance().React(m_type, reaction), m_mostPriorityTarget};
             m_reactionCb(operations);
+            m_hasNewPoi = false;
         }
     }
 }

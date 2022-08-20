@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_MODULE_PATH "/usr/share/SFML/cmake/Modules/" ${CMAKE_MODULE_PATH})
 
 option(DEBUG "DEBUG MODE." OFF)
+option(LOG "LOG MODE." OFF)
 option(UNIT_TEST "UNIT TEST." OFF)
 
 message("DEBUG MODE ${DEBUG}")
@@ -21,6 +22,10 @@ find_package(SFML 2
 if(UNIT_TEST)
     add_subdirectory(unit-test)
 endif(UNIT_TEST)
+
+if(LOG)
+    add_definitions(-DLOG)
+endif(LOG)
 
 set(LIBS pthread sfml-graphics sfml-audio sfml-window sfml-system)
 

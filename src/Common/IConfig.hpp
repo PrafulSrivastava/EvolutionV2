@@ -8,6 +8,8 @@
 
 #define pEnum(x) CUtility::GetEnumName<>(x)
 
+#define logFunc std::cout << __func__ << std::endl;
+
 namespace Evolution
 {
     using Resolution = float;
@@ -36,7 +38,11 @@ namespace Evolution
     {
         using Priority = Resolution;
         using EntityId = NFResolution32;
-        constexpr auto OrganismCount = 10;
+        constexpr auto OrganismCount = 5;
+        constexpr auto CarnivoreCount = 1;
+        constexpr auto HerbivoreCount = 30;
+        constexpr auto OmnivoreCount = 0;
+        constexpr auto InvalidEntityId = -1;
     }
     namespace Utility
     {
@@ -89,7 +95,8 @@ namespace Evolution
         enum class MovementType : uint8_t
         {
             Randomly = 0,
-            Purposely = 1
+            Purposely = 1,
+            Chase = 2
         };
 
         enum class MovementOperation : uint8_t
@@ -107,7 +114,14 @@ namespace Evolution
             ChangeMotionToRun,
         };
 
-        using Operations = std::vector<Movement::MovementOperation>;
+        struct MovementAttribute
+        {
+            std::vector<Movement::MovementOperation> operations;
+            Manager::EntityId targetId;
+            Resolution offset;
+        };
+
+        using Operations = MovementAttribute;
     }
 
     namespace Position
@@ -151,6 +165,13 @@ namespace Evolution
             sf::Text label;
         };
 
+        // Behaviours
+        constexpr auto MinPriorityToFight = 30;
+        constexpr auto MinThresholdEnergy = 20;
+        constexpr auto MaxThresholdEnergy = 90;
+        constexpr auto MinThresholdStamina = 50;
+        constexpr auto MinThresholdAggression = 60;
+
         constexpr auto MaxSpawnEnergy = 50;
         constexpr auto MinSpawnEnergy = 0;
         constexpr auto CarnivoreEnergyOffset = 50;
@@ -165,7 +186,7 @@ namespace Evolution
 
         constexpr auto MaxSpawnConeAngle = 90;
         constexpr auto MinSpawnConeAngle = 45;
-        constexpr auto CarnivoreConeAngleOffset = 0;
+        constexpr auto CarnivoreConeAngleOffset = 30;
         constexpr auto HerbivoreConeAngleOffset = 50;
         constexpr auto OmnivoreConeAngleOffset = 15;
 
@@ -177,7 +198,7 @@ namespace Evolution
 
         constexpr auto MaxSpawnSpeed = 50;
         constexpr auto MinSpawnSpeed = 0;
-        constexpr auto CarnivoreSpeedOffset = 10;
+        constexpr auto CarnivoreSpeedOffset = 30;
         constexpr auto HerbivoreSpeedOffset = 50;
         constexpr auto OmnivoreSpeedOffset = 25;
 
@@ -189,8 +210,8 @@ namespace Evolution
 
         constexpr auto MinEdges = 3;
         constexpr auto MaxEdges = 10;
-        constexpr auto MinRadius = 20;
-        constexpr auto MaxRadius = 30;
+        constexpr auto MinRadius = 5;
+        constexpr auto MaxRadius = 10;
         const sf::Color SpawnColor = sf::Color::White;
         const sf::Color CarnivoreSpawnColor = sf::Color::Red;
         const sf::Color HerbivoreSpawnColor = sf::Color::Green;
@@ -207,6 +228,7 @@ namespace Evolution
             RUN = 2,
             FIGHT = 3,
             GROUP = 4,
+            EAT = 5
         };
 
         using ReactionCb = std::function<void(Movement::Operations)>;

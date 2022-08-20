@@ -3,14 +3,14 @@
 
 namespace Evolution::Manager
 {
-    EntityMatrix::EntityMatrix()
+    EntityMatrix::EntityMatrix(std::shared_ptr<sf::RenderWindow> window) : m_window(window)
     {
     }
 
     EntityId EntityMatrix::AddEntity(std::shared_ptr<Evolution::Organism::IOrganismEntity> org)
     {
         m_entityMatrix[++m_entityId];
-        m_organismList.push_back(org);
+        m_organismList[m_entityId] = org;
 
         return m_entityId;
     }
@@ -20,20 +20,34 @@ namespace Evolution::Manager
         auto itorg = m_entityMatrix.find(org);
         if (itorg != m_entityMatrix.end())
         {
-            itorg->second.insert({target, INT16_MIN});
+            itorg->second[target] = INT16_MIN;
         }
     }
 
-    EntityId EntityMatrix::CalculateMostPriorityTarget(Evolution::Manager::EntityId id)
+    Priority EntityMatrix::GetPriority(const EntityId &org, const EntityId &target)
+    {
+        auto itorg = m_entityMatrix.find(org);
+        if (itorg != m_entityMatrix.end())
+        {
+            auto itTarget = itorg->second.find(target);
+            if (itTarget != itorg->second.end())
+            {
+                return itTarget->second;
+            }
+        }
+        return INT16_MIN;
+    }
+
+    EntityId EntityMatrix::CalculateMostPriorityTarget(const Evolution::Manager::EntityId &id)
     {
         Priority max = INT32_MIN;
         EntityId idMax;
 
-        std::cout << "Organism Id:" << id << " Organism Type: " << pEnum(m_organismList[id]->GetAttributes()->type) << std::endl;
+        // std::cout << "Organism Id:" << id << " Organism Type: " << pEnum(m_organismList[id]->GetAttributes()->type) << std::endl;
 
         for (auto target : m_entityMatrix[id])
         {
-            std::cout << "Target Id:" << target.first << " Priority: " << target.second << " Target Type: " << pEnum(m_organismList[target.first]->GetAttributes()->type) << std::endl;
+            // std::cout << "Target Id:" << target.first << " Priority: " << target.second << " Target Type: " << pEnum(m_organismList[target.first]->GetAttributes()->type) << std::endl;
             if (target.second >= max)
             {
                 max = target.second;
@@ -52,7 +66,21 @@ namespace Evolution::Manager
     void EntityMatrix::RemoveEntity(const EntityId &org)
     {
         m_entityMatrix.erase(org);
-        m_organismList.erase(m_organismList.begin() + org);
+
+        for (auto &item : m_entityMatrix)
+        {
+            auto itorg = item.second.find(org);
+            if (itorg != item.second.end())
+            {
+                item.second.erase(itorg);
+            }
+        }
+
+        auto itorg = m_organismList.find(org);
+        if (itorg != m_organismList.end())
+        {
+            m_organismList.erase(itorg);
+        }
     }
 
     void EntityMatrix::SetTargetEncounteredInfo(const EntityId &org, const EntityId &target)
@@ -60,7 +88,9 @@ namespace Evolution::Manager
         auto itorg = m_entityMatrix.find(org);
         if (itorg != m_entityMatrix.end())
         {
-            itorg->second.insert({target, FetchPriority(org, target)});
+            auto newPrio = FetchPriority(org, target);
+            itorg->second[target] = newPrio;
+            // std::cout << "New Priority of " << target << " for " << org << " is :" << newPrio << std::endl;
         }
     }
 
@@ -121,11 +151,28 @@ namespace Evolution::Manager
         return m_entityId + 1;
     }
 
+    std::unordered_map<EntityId, std::unordered_map<EntityId, Priority>> EntityMatrix::GetEntityMatrix()
+    {
+        return m_entityMatrix;
+    }
+
+    void EntityMatrix::RunMainLoop()
+    {
+        for (auto org : m_organismList)
+        {
+            org.second->RunMainLoop();
+            m_window->draw(*org.second);
+
+            // CUtility::ShowVisionInfo(org.second->GetAttributes()->visionDepth, org.second->GetAttributes()->visionConeAngle, org.second->getPosition(), org.second->getRotation());
+            // CUtility::AddLabels(org.second->GetAttributes()->label, org.second->getPosition());
+        }
+    }
+
     void EntityMatrix::Shutdown()
     {
         for (auto it : m_organismList)
         {
-            it->Destroy();
+            it.second->Destroy();
         }
         m_organismList.clear();
         m_entityMatrix.clear();

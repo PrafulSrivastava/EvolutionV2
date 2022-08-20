@@ -19,6 +19,11 @@ namespace Evolution
                 return m_attributes;
             }
 
+            void RemoveIfNotInVision(const Manager::EntityId &id)
+            {
+                m_behaviour->RemoveIfNotInVision(id);
+            }
+
             void OnCollision(std::shared_ptr<Attributes> targetAttributes)
             {
                 m_behaviour->OnCollision(targetAttributes);
@@ -36,9 +41,11 @@ namespace Evolution
 
             void OnReaction(Movement::Operations operations)
             {
-                m_operations.clear();
-                m_operations = std::move(operations);
+                m_operations.operations.clear();
+                m_operations.targetId = operations.targetId;
+                m_operations.operations = std::move(operations.operations);
                 m_reactionChanged = true;
+                // std::cout << "New POI: " << m_operations.targetId << " for : " << m_attributes->id << std::endl;
             }
 
             NFResolution32 GetEntityId()
@@ -53,14 +60,19 @@ namespace Evolution
 
             Movement::Operations FetchMovementOperations()
             {
+                // if (m_reactionChanged)
+                // {
+                //     auto op = std::move(m_operations);
+                //     m_reactionChanged = false;
+                //     m_operations.operations.clear();
+                //     m_operations = {};
+                //     return op;
+                // }
                 if (m_reactionChanged)
                 {
-                    auto op = std::move(m_operations);
                     m_reactionChanged = false;
-                    m_operations.clear();
-                    return op;
+                    return m_operations;
                 }
-
                 return {};
             }
 
@@ -71,7 +83,7 @@ namespace Evolution
             std::shared_ptr<Attributes> m_attributes{nullptr};
             OrganismType m_type{OrganismType::INVALID};
             Behaviour::ReactionType m_reaction{Behaviour::ReactionType::INVALID};
-            Movement::Operations m_operations{Movement::MovementOperation::INVALID};
+            Movement::Operations m_operations{{Movement::MovementOperation::INVALID}, Manager::InvalidEntityId};
             bool m_reactionChanged{false};
         };
     }

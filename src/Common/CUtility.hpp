@@ -18,6 +18,7 @@ namespace Evolution
         static void ShowVisionInfo(Resolution depth, Resolution cone, sf::Vector2f origin, Resolution direction);
         static sf::Vector2f GetMovementRatio(Resolution direction);
         static Resolution DegreeToRadians(Resolution degree);
+        static Resolution RadiansToDegree(Resolution radians);
         static Utility::Quadrant GetQuadrant(Resolution degree);
         static sf::Color GetRandomColor();
         static NFResolution32 GetRandomValueInRange(NFResolution32 low, NFResolution32 high);

@@ -16,6 +16,7 @@ namespace Evolution::Organism
     void SingleCelledOrganism::SetEntityId(NFResolution32 id)
     {
         m_attributes->id = id;
+        m_behaviour->SetOrgId(m_attributes->id);
     }
 
     void SingleCelledOrganism::Spawn()
