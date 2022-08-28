@@ -43,11 +43,12 @@ namespace Evolution::Manager
         Priority max = INT32_MIN;
         EntityId idMax;
 
-        // std::cout << "Organism Id:" << id << " Organism Type: " << pEnum(m_organismList[id]->GetAttributes()->type) << std::endl;
+        Log(Log::DEBUG, "Organism Id:", id, "Organism Type:", pEnum(m_organismList[id]->GetAttributes()->type));
 
         for (auto target : m_entityMatrix[id])
         {
-            // std::cout << "Target Id:" << target.first << " Priority: " << target.second << " Target Type: " << pEnum(m_organismList[target.first]->GetAttributes()->type) << std::endl;
+            Log(Log::VERBOSE, "Target Id:", target.first, "Priority:", target.second, "Target Type:", pEnum(m_organismList[target.first]->GetAttributes()->type));
+
             if (target.second >= max)
             {
                 max = target.second;
@@ -90,7 +91,7 @@ namespace Evolution::Manager
         {
             auto newPrio = FetchPriority(org, target);
             itorg->second[target] = newPrio;
-            // std::cout << "New Priority of " << target << " for " << org << " is :" << newPrio << std::endl;
+            Log(Log::DEBUG, "New Priority of", target, "for", org, "is", newPrio);
         }
     }
 
@@ -141,7 +142,7 @@ namespace Evolution::Manager
         }
 
         priority += 0.35 * (dAggression + dEnergy) + 0.15 * (dSpeed + dStamina);
-        priority += (0.50 * priority + 0.5 * (typePriority));
+        priority += (0.5 * priority + 0.5 * (typePriority));
 
         return priority;
     }
@@ -163,8 +164,10 @@ namespace Evolution::Manager
             org.second->RunMainLoop();
             m_window->draw(*org.second);
 
-            // CUtility::ShowVisionInfo(org.second->GetAttributes()->visionDepth, org.second->GetAttributes()->visionConeAngle, org.second->getPosition(), org.second->getRotation());
-            // CUtility::AddLabels(org.second->GetAttributes()->label, org.second->getPosition());
+#ifdef DEBUG_MODE
+            CUtility::ShowVisionInfo(org.second->GetAttributes()->visionDepth, org.second->GetAttributes()->visionConeAngle, org.second->getPosition(), org.second->getRotation());
+            CUtility::AddLabels(org.second->GetAttributes()->label, org.second->getPosition());
+#endif
         }
     }
 

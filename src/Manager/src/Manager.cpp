@@ -70,6 +70,8 @@ namespace Evolution::Manager
 
     void Manager::AddEntity(std::shared_ptr<Evolution::Organism::IOrganismEntity> org)
     {
+        // Evolution::Logger::LogD(4, "Abcd", 5, 2.0);
+
         auto id = m_matrix->AddEntity(org);
         org->SetEntityId(id);
         org->GetAttributes()->label = CUtility::GenerateLabels(org->GetAttributes()->id);
@@ -92,23 +94,15 @@ namespace Evolution::Manager
                 {
                     if (m_matrix->GetPriority(i.first, j.first) == INT16_MIN)
                     {
-                        // std::cout << "Add:  Priority of: " << j.first << " for: " << i.first << " " << m_matrix->GetPriority(i.first, j.first) << std::endl;
-
                         m_matrix->SetTargetEncounteredInfo(i.first, j.first);
                         auto mostPriorityTargetId = m_matrix->CalculateMostPriorityTarget(i.first);
                         m_matrix->GetEntity(i.first)->SetMostPriorityTarget(mostPriorityTargetId);
-                        // std::cout << "Added" << std::endl;
-#ifdef LOG
-                        // std::cout << "Setting Most Priority Target for Organism Id: " << i.first << " to: " << mostPriorityTargetId << std::endl;
-#endif
 
                         m_matrix->GetEntity(i.first)->OnEncounter(m_matrix->GetEntity(i.first)->GetAttributes(), m_matrix->GetEntity(j.first)->GetAttributes());
                     }
                 }
                 else if (m_matrix->GetPriority(i.first, j.first) != INT16_MIN)
                 {
-                    // std::cout << "Reset:  Priority of: " << j.first << " for: " << i.first << " " << m_matrix->GetPriority(i.first, j.first) << std::endl;
-
                     m_matrix->ResetPriority(i.first, j.first);
 
                     m_matrix->GetEntity(i.first)->RemoveIfNotInVision(j.first);

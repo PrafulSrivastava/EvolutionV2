@@ -30,8 +30,6 @@ namespace Evolution
                 auto itorg = m_organismsInView.find(id);
                 if (itorg != m_organismsInView.end())
                 {
-                    // std::cout << "Removing : " << id << std::endl;
-
                     if (m_mostPriorityTarget == id)
                         m_hasNewPoi = false;
 
@@ -41,8 +39,6 @@ namespace Evolution
 
             void OnEncounter(std::shared_ptr<Organism::Attributes> orgAttributes, std::shared_ptr<Organism::Attributes> targetAttributes)
             {
-                // currentId = targetAttributes->id;
-
                 if (m_organismsInView.find(targetAttributes->id) == m_organismsInView.end())
                 {
                     ReactionInfo info = {orgAttributes,
@@ -51,9 +47,7 @@ namespace Evolution
                                          FetchTargetReaction(targetAttributes->id)};
 
                     auto reaction = Reaction::GetInstance().FetchReaction(info);
-                    // std::cout << "Adding target : " << targetAttributes->id << " to " << orgAttributes->id << std::endl;
                     m_organismsInView[targetAttributes->id] = {reaction, targetAttributes->id};
-                    // std::cout << "m_hasNewPoi : " << m_hasNewPoi << " for " << orgAttributes->id << std::endl;
                     m_hasNewPoi = true;
                 }
             }
@@ -81,12 +75,8 @@ namespace Evolution
 
             void SetMostPriorityTarget(Manager::EntityId index)
             {
-                // if (m_mostPriorityTarget != index)
-                // {
-                //     // std::cout << "Setting Most Prio target to " << index << " for " << m_orgId << std::endl;
                 m_mostPriorityTarget = index;
-                // std::cout << "m_mostPriorityTarget " << m_mostPriorityTarget << std::endl;
-                // }
+                Log(Log::DEBUG, "MostPriorityTargetId", m_mostPriorityTarget);
             }
 
             void SetOrgId(Manager::EntityId id)

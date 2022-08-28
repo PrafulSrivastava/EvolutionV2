@@ -45,7 +45,6 @@ namespace Evolution
                 m_operations.targetId = operations.targetId;
                 m_operations.operations = std::move(operations.operations);
                 m_reactionChanged = true;
-                // std::cout << "New POI: " << m_operations.targetId << " for : " << m_attributes->id << std::endl;
             }
 
             NFResolution32 GetEntityId()
@@ -60,14 +59,6 @@ namespace Evolution
 
             Movement::Operations FetchMovementOperations()
             {
-                // if (m_reactionChanged)
-                // {
-                //     auto op = std::move(m_operations);
-                //     m_reactionChanged = false;
-                //     m_operations.operations.clear();
-                //     m_operations = {};
-                //     return op;
-                // }
                 if (m_reactionChanged)
                 {
                     m_reactionChanged = false;

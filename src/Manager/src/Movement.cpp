@@ -35,6 +35,8 @@ namespace Evolution::Manager
 
     void Movement::Move()
     {
+        Log(Log::VERBOSE, __func__, 23);
+
         for (auto &org : m_organismsMovementInfo)
         {
             auto movementAttr = m_matrix->GetEntity(org.first)->FetchMovementOperations();
@@ -177,12 +179,7 @@ namespace Evolution::Manager
         {
             return {(pointA.x + 1), (pointA.y + diff.y / diff.x)};
         }
-        // auto angle = std::atan(diff.y / diff.x);
-        // std::cout << "Angle: " << angle << std::endl;
 
-        // auto ratio = CUtility::GetMovementRatio(CUtility::RadiansToDegree(angle));
-        // auto yToMove = ratio.y * speed / 100;
-        // auto xToMove = ratio.x * speed / 100;
         // return pointA + (pointB - pointA) * speed * m_factor;
     }
 
@@ -195,34 +192,42 @@ namespace Evolution::Manager
 
         org->setFillColor(sf::Color::Magenta);
         auto attributes = org->GetAttributes();
-        auto target = m_matrix->GetEntity(targetid);
 
-        if (CUtility::GetDistanceBetweenPoints(org->getPosition(), target->getPosition()) > attributes->visionDepth / 8)
+        if (m_matrix->GetEntityMatrix().find(targetid) != m_matrix->GetEntityMatrix().end())
         {
-            // org->setPosition(GetNewPosition(target->getRotation(), attributes->speed, org->getPosition()));
-            org->setPosition(Interpolate(org->getPosition(), target->getPosition(), attributes->speed));
-        }
+            auto target = m_matrix->GetEntity(targetid);
 
+            if (CUtility::GetDistanceBetweenPoints(org->getPosition(), target->getPosition()) > attributes->visionDepth / 8)
+            {
+
+                // org->setPosition(GetNewPosition(target->getRotation(), attributes->speed, org->getPosition()));
+                org->setPosition(Interpolate(org->getPosition(), target->getPosition(), attributes->speed));
+            }
+
+            else
+            {
+                Log(Log::INFO, orgid, "Killed", targetid);
+
+                org->setFillColor(sf::Color::Red);
+                m_unregisteredList.push_back({orgid, targetid});
+                info.type = Evolution::Movement::MovementType::Randomly;
+            }
+            info.steps -= Utility::StepReductionFactor;
+            if (info.steps <= 0)
+            {
+                org->setFillColor(sf::Color::Red);
+                info.type = Evolution::Movement::MovementType::Randomly;
+            }
+        }
         else
         {
-            std::cout << orgid << " Killed " << targetid << std::endl;
-            org->setFillColor(sf::Color::Red);
-            m_unregisteredList.push_back({orgid, targetid});
-            info.type = Evolution::Movement::MovementType::Randomly;
-        }
-        info.steps -= Utility::StepReductionFactor;
-        if (info.steps <= 0)
-        {
-            org->setFillColor(sf::Color::Red);
-            info.type = Evolution::Movement::MovementType::Randomly;
         }
     }
 
     void Movement::UpdateMovementOperation(const Evolution::Manager::EntityId &orgid, const Evolution::Manager::EntityId &targetid, Evolution::Movement::MovementOperation operation)
     {
-#ifdef LOG
-        // std::cout << "\t" << pEnum(operation) << std::endl;
-#endif
+        Log(Log::DEBUG, "\t", pEnum(operation));
+
         auto org = m_matrix->GetEntity(orgid);
         switch (operation)
         {
@@ -251,7 +256,7 @@ namespace Evolution::Manager
 
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToGroup:
-            // org->setFillColor(sf::Color::Green);
+            // org->setFillColor(sf::Color::Blue);
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToIgnore:
             // org->setFillColor(sf::Color::Cyan);

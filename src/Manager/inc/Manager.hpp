@@ -7,6 +7,7 @@
 #include <vector>
 #include <memory>
 #include "EntityMatrix.hpp"
+#include "Logger.hpp"
 
 namespace Evolution::Manager
 {
