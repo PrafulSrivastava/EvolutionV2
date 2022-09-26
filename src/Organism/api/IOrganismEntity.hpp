@@ -19,6 +19,11 @@ namespace Evolution
                 return m_attributes;
             }
 
+            void RemoveIfNotInVision(const Manager::EntityId &id)
+            {
+                m_behaviour->RemoveIfNotInVision(id);
+            }
+
             void OnCollision(std::shared_ptr<Attributes> targetAttributes)
             {
                 m_behaviour->OnCollision(targetAttributes);
@@ -29,12 +34,16 @@ namespace Evolution
                 m_behaviour->OnEncounter(orgAttributes, targetAttributes);
             }
 
+            void SetMostPriorityTarget(Manager::EntityId index)
+            {
+                m_behaviour->SetMostPriorityTarget(index);
+            }
+
             void OnReaction(Movement::Operations operations)
             {
-                std::lock_guard<std::mutex> lck(m_mtx);
-
-                m_operations.clear();
-                m_operations = std::move(operations);
+                m_operations.operations.clear();
+                m_operations.targetId = operations.targetId;
+                m_operations.operations = std::move(operations.operations);
                 m_reactionChanged = true;
             }
 
@@ -50,14 +59,11 @@ namespace Evolution
 
             Movement::Operations FetchMovementOperations()
             {
-                std::lock_guard<std::mutex> lck(m_mtx);
-
                 if (m_reactionChanged)
                 {
                     m_reactionChanged = false;
                     return m_operations;
                 }
-
                 return {};
             }
 
@@ -68,7 +74,7 @@ namespace Evolution
             std::shared_ptr<Attributes> m_attributes{nullptr};
             OrganismType m_type{OrganismType::INVALID};
             Behaviour::ReactionType m_reaction{Behaviour::ReactionType::INVALID};
-            Movement::Operations m_operations{Movement::MovementOperation::INVALID};
+            Movement::Operations m_operations{{Movement::MovementOperation::INVALID}, Manager::InvalidEntityId};
             bool m_reactionChanged{false};
         };
     }

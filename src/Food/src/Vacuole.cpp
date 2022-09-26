@@ -21,7 +21,6 @@
 //     }
 //     void Vacuole::Spawn()
 //     {
-//         std::cout << __PRETTY_FUNCTION__ << std::endl;
 //     }
 //     void Vacuole::Destroy()
 //     {

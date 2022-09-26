@@ -11,22 +11,22 @@ namespace Evolution
             return react;
         }
 
-        ReactionType Reaction::FetchReaction(std::shared_ptr<Evolution::Organism::Attributes> organismAttributes, std::shared_ptr<Evolution::Organism::Attributes> targetAttributes)
+        ReactionType Reaction::FetchReaction(ReactionInfo &reactInfo)
         {
 
-            ReactionType react;
-            switch (organismAttributes->type)
+            ReactionType react{};
+            switch (reactInfo.org->type)
             {
             case Evolution::Organism::OrganismType::CARNIVORE:
-                react = FetchCarnivoreReaction(organismAttributes, targetAttributes);
+                react = FetchCarnivoreReaction(reactInfo);
                 break;
 
             case Evolution::Organism::OrganismType::HERBIVORE:
-                react = FetchHerbivoreReaction(organismAttributes, targetAttributes);
+                react = FetchHerbivoreReaction(reactInfo);
                 break;
 
             case Evolution::Organism::OrganismType::OMNIVORE:
-                react = FetchOmnivoreReaction(organismAttributes, targetAttributes);
+                react = FetchOmnivoreReaction(reactInfo);
                 break;
 
             default:
@@ -37,11 +37,11 @@ namespace Evolution
             return react;
         }
 
-        ReactionType Reaction::FetchCarnivoreReaction(std::shared_ptr<Evolution::Organism::Attributes> organismAttributes, std::shared_ptr<Evolution::Organism::Attributes> targetAttributes)
+        ReactionType Reaction::FetchCarnivoreReaction(ReactionInfo &reactInfo)
         {
             ReactionType reaction = ReactionType::INVALID;
 
-            switch (targetAttributes->type)
+            switch (reactInfo.target->type)
             {
             case Organism::OrganismType::HERBIVORE:
                 reaction = ReactionType::KILL;
@@ -53,15 +53,42 @@ namespace Evolution
                 reaction = ReactionType::FIGHT;
                 break;
             }
+
+            if (reactInfo.reaction == ReactionType::KILL)
+            {
+                if (reactInfo.priority >= Organism::MinPriorityToFight)
+                {
+                    if (reactInfo.target->aggression <= Organism::MinThresholdAggression)
+                    {
+                        reaction = ReactionType::FIGHT;
+                    }
+                }
+                else
+                {
+                    reaction = ReactionType::IGNORE;
+                }
+            }
+
+            // Desperate to increase health
+            else if (reactInfo.target->energy <= Organism::MinThresholdEnergy)
+            {
+                // reaction = ReactionType::EAT;
+                reaction = ReactionType::KILL;
+            }
+
+            else if (reactInfo.target->energy >= Organism::MaxThresholdEnergy)
+            {
+                reaction = ReactionType::IGNORE;
+            }
+
             return reaction;
         }
 
-        ReactionType Reaction::FetchHerbivoreReaction(std::shared_ptr<Evolution::Organism::Attributes> organismAttributes, std::shared_ptr<Evolution::Organism::Attributes> targetAttributes)
+        ReactionType Reaction::FetchHerbivoreReaction(ReactionInfo &reactInfo)
         {
-
             ReactionType reaction = ReactionType::INVALID;
 
-            switch (targetAttributes->type)
+            switch (reactInfo.target->type)
             {
             case Organism::OrganismType::HERBIVORE:
                 reaction = ReactionType::GROUP;
@@ -73,15 +100,31 @@ namespace Evolution
                 reaction = ReactionType::FIGHT;
                 break;
             }
+
+            if (reactInfo.reaction == ReactionType::RUN)
+            {
+                if (reactInfo.priority >= Organism::MinPriorityToFight)
+                {
+                    if (reactInfo.target->aggression >= Organism::MinThresholdAggression)
+                    {
+                        reaction = ReactionType::KILL;
+                    }
+                    else
+                    {
+                        reaction = ReactionType::FIGHT;
+                    }
+                }
+            }
+
             return reaction;
         }
 
-        ReactionType Reaction::FetchOmnivoreReaction(std::shared_ptr<Evolution::Organism::Attributes> organismAttributes, std::shared_ptr<Evolution::Organism::Attributes> targetAttributes)
+        ReactionType Reaction::FetchOmnivoreReaction(ReactionInfo &reactInfo)
         {
 
             ReactionType reaction = ReactionType::INVALID;
 
-            switch (targetAttributes->type)
+            switch (reactInfo.target->type)
             {
             case Organism::OrganismType::HERBIVORE:
                 reaction = ReactionType::KILL;
@@ -102,6 +145,7 @@ namespace Evolution
             switch (reaction)
             {
             case Behaviour::ReactionType::KILL:
+                operations.push_back(Movement::MovementOperation::IncrementSpeed);
                 operations.push_back(Movement::MovementOperation::ChangeMotionToKill);
                 break;
 
@@ -136,7 +180,7 @@ namespace Evolution
             case Behaviour::ReactionType::RUN:
                 operations.push_back(Movement::MovementOperation::ChangeMotionToRun);
                 operations.push_back(Movement::MovementOperation::RotateBy180);
-                operations.push_back(Movement::MovementOperation::IncrementSpeed);
+                // operations.push_back(Movement::MovementOperation::IncrementSpeed);
                 break;
 
             case Behaviour::ReactionType::GROUP:
@@ -178,7 +222,7 @@ namespace Evolution
 
             case Behaviour::ReactionType::GROUP:
                 operations.push_back(Movement::MovementOperation::ChangeMotionToGroup);
-                // operations.push_back(Movement::MovementOperation::DecrementSpeed);
+                operations.push_back(Movement::MovementOperation::DecrementSpeed);
                 break;
 
             case Behaviour::ReactionType::FIGHT:

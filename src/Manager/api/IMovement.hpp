@@ -15,16 +15,16 @@ namespace Evolution::Manager
         NFResolution16 steps;
         Utility::Hemisphere hemisphere;
         Utility::Quadrant quadrant;
-        NFResolution32 organismId;
+        Manager::EntityId target{Manager::InvalidEntityId};
     };
 
     class IMovement
     {
     public:
-        virtual NFResolution16 RegisterToMove(NFResolution32, Evolution::Movement::MovementType) = 0;
-        virtual void UpdateMovement(NFResolution16, Evolution::Movement::MovementType) = 0;
-        virtual void UpdateMovementOperation(NFResolution16, Evolution::Movement::MovementOperation) = 0;
-        virtual void UnRegisterToMove(NFResolution16) = 0;
+        virtual Evolution::Manager::EntityId RegisterToMove(Evolution::Manager::EntityId, Evolution::Movement::MovementType) = 0;
+        virtual void UpdateMovement(Evolution::Manager::EntityId, Evolution::Movement::MovementType) = 0;
+        virtual void UpdateMovementOperation(const Evolution::Manager::EntityId &, const Evolution::Manager::EntityId &, Evolution::Movement::MovementOperation) = 0;
+        virtual void UnRegisterToMove(Evolution::Manager::EntityId) = 0;
         virtual void Move() = 0;
         virtual void MoveToPoint(sf::Vector2f) = 0;
     };

@@ -1,8 +1,8 @@
 #include "Manager.hpp"
 #include "Movement.hpp"
 #include "IConfig.hpp"
-#include "Bacteria.hpp"
-#include "Algae.hpp"
+
+#include "SingleCelledOrganism.hpp"
 #include "CUtility.hpp"
 #include "BehaviourHandler.hpp"
 #include <math.h>
@@ -14,30 +14,27 @@ namespace Evolution::Manager
         m_window = std::make_shared<sf::RenderWindow>(
             sf::VideoMode(Evolution::Utility::Width, Evolution::Utility::Height), Evolution::Utility::WindowName);
         CUtility::Init(m_window);
-        m_matrix = std::make_shared<EntityMatrix>();
+        CUtility::RegisterAllEnums();
+        m_matrix = std::make_shared<EntityMatrix>(m_window);
         m_movement = std::make_shared<Movement>(m_matrix);
     }
 
-    bool Manager::IsInVision(std::shared_ptr<Evolution::Organism::IOrganismEntity> viewer, std::shared_ptr<Evolution::Organism::IOrganismEntity> viewee)
+    bool Manager::IsInVision(EntityId viewer, EntityId viewee)
     {
-        // TODO: Need to add Matrix logic
-        // viewerId and targetId
-        // mat[viewerId]
-        // mat[targetId]
         bool inVision = false;
-        auto viewerPos = viewer->getPosition();
-        auto vieweePos = viewee->getPosition();
+        auto viewerPos = m_matrix->GetEntity(viewer)->getPosition();
+        auto vieweePos = m_matrix->GetEntity(viewee)->getPosition();
 
         auto res = std::sqrt(std::pow((vieweePos.x - viewerPos.x), 2) + std::pow((vieweePos.y - viewerPos.y), 2));
-        if (res <= viewer->GetAttributes()->visionDepth)
+        if (res <= m_matrix->GetEntity(viewer)->GetAttributes()->visionDepth)
         {
             inVision = true;
-            viewee->SetCurrentPos(viewee->getPosition());
+            m_matrix->GetEntity(viewee)->SetCurrentPos(m_matrix->GetEntity(viewee)->getPosition());
         }
         return inVision;
     }
 
-    bool Manager::HasCollided(std::shared_ptr<Evolution::Organism::IOrganismEntity> viewer, std::shared_ptr<Evolution::Organism::IOrganismEntity> viewee)
+    bool Manager::HasCollided(EntityId viewer, EntityId viewee)
     {
         // TODO
         return false;
@@ -47,50 +44,73 @@ namespace Evolution::Manager
     {
 
         std::shared_ptr<Evolution::Organism::IOrganismEntity> bacteria;
-        std::shared_ptr<Evolution::Organism::IOrganismEntity> algae;
+        std::shared_ptr<Evolution::Organism::IOrganismEntity> SingleCelledOrganism;
 
-        for (int i = 0; i < 5; i++)
+        // for (int i = 0; i < OrganismCount; i++)
+        // {
+        //     std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(static_cast<Organism::OrganismType>(CUtility::GetRandomValueInRange(0, 2)));
+        //     AddEntity(org);
+        // }
+        for (int i = 0; i < CarnivoreCount; i++)
         {
-            if (CUtility::HeadsOrTails() == Utility::Choice::HEADS)
-            {
-                std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::Algae>();
-                AddEntity(org);
-            }
-            else
-            {
-                std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::Bacteria>();
-                AddEntity(org);
-            }
+            std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::OrganismType::CARNIVORE);
+            AddEntity(org);
+        }
+        for (int i = 0; i < HerbivoreCount; i++)
+        {
+            std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::OrganismType::HERBIVORE);
+            AddEntity(org);
+        }
+        for (int i = 0; i < OmnivoreCount; i++)
+        {
+            std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::OrganismType::OMNIVORE);
+            AddEntity(org);
         }
     }
 
     void Manager::AddEntity(std::shared_ptr<Evolution::Organism::IOrganismEntity> org)
     {
+        // Evolution::Logger::LogD(4, "Abcd", 5, 2.0);
+
         auto id = m_matrix->AddEntity(org);
         org->SetEntityId(id);
+        org->GetAttributes()->label = CUtility::GenerateLabels(org->GetAttributes()->id);
         org->Spawn();
         m_movement->RegisterToMove(id, Evolution::Movement::MovementType::Randomly);
     }
 
     void Manager::RunMainLoop()
     {
-        for (int i = 0; i < m_matrix->GetEntityCount(); i++)
+        for (auto i : m_matrix->GetEntityMatrix())
         {
-            for (int j = 0; j < m_matrix->GetEntityCount(); j++)
+            for (auto j : m_matrix->GetEntityMatrix())
             {
-                if (i == j)
+                if (i.first == j.first)
                 {
                     continue;
                 }
 
-                if (IsInVision(m_matrix->GetEntity(i), m_matrix->GetEntity(j)))
+                if (IsInVision(i.first, j.first))
                 {
-                    m_matrix->GetEntity(i)->OnEncounter(m_matrix->GetEntity(i)->GetAttributes(), m_matrix->GetEntity(j)->GetAttributes());
+                    if (m_matrix->GetPriority(i.first, j.first) == INT16_MIN)
+                    {
+                        m_matrix->SetTargetEncounteredInfo(i.first, j.first);
+                        auto mostPriorityTargetId = m_matrix->CalculateMostPriorityTarget(i.first);
+                        m_matrix->GetEntity(i.first)->SetMostPriorityTarget(mostPriorityTargetId);
+
+                        m_matrix->GetEntity(i.first)->OnEncounter(m_matrix->GetEntity(i.first)->GetAttributes(), m_matrix->GetEntity(j.first)->GetAttributes());
+                    }
+                }
+                else if (m_matrix->GetPriority(i.first, j.first) != INT16_MIN)
+                {
+                    m_matrix->ResetPriority(i.first, j.first);
+
+                    m_matrix->GetEntity(i.first)->RemoveIfNotInVision(j.first);
                 }
 
-                if (HasCollided(m_matrix->GetEntity(i), m_matrix->GetEntity(j)))
+                if (HasCollided(i.first, j.first))
                 {
-                    m_matrix->GetEntity(i)->OnCollision(m_matrix->GetEntity(j)->GetAttributes());
+                    m_matrix->GetEntity(i.first)->OnCollision(m_matrix->GetEntity(j.first)->GetAttributes());
                 }
             }
         }
@@ -120,14 +140,11 @@ namespace Evolution::Manager
                 }
             }
 
-            RunMainLoop();
             m_movement->Move();
-            for (int i = 0; i < m_matrix->GetEntityCount(); i++)
-            {
-                m_matrix->GetEntity(i)->RunMainLoop();
-                m_window->draw(*(m_matrix->GetEntity(i)));
-                CUtility::ShowVisionInfo(m_matrix->GetEntity(i)->GetAttributes()->visionDepth, m_matrix->GetEntity(i)->GetAttributes()->visionConeAngle, m_matrix->GetEntity(i)->getPosition(), m_matrix->GetEntity(i)->getRotation());
-            }
+
+            RunMainLoop();
+
+            m_matrix->RunMainLoop();
 
             m_window->display();
         }

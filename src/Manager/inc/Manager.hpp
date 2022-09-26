@@ -7,6 +7,7 @@
 #include <vector>
 #include <memory>
 #include "EntityMatrix.hpp"
+#include "Logger.hpp"
 
 namespace Evolution::Manager
 {
@@ -27,9 +28,8 @@ namespace Evolution::Manager
         void Shutdown() override;
 
     private:
-        bool IsInVision(std::shared_ptr<Evolution::Organism::IOrganismEntity> viewer, std::shared_ptr<Evolution::Organism::IOrganismEntity> viewee);
-        bool HasCollided(std::shared_ptr<Evolution::Organism::IOrganismEntity> viewer, std::shared_ptr<Evolution::Organism::IOrganismEntity> viewee);
-
+        bool IsInVision(EntityId viewer, EntityId viewee);
+        bool HasCollided(EntityId viewer, EntityId viewee);
         std::shared_ptr<IMovement> m_movement{nullptr};
         std::shared_ptr<EntityMatrix> m_matrix{nullptr};
     };
