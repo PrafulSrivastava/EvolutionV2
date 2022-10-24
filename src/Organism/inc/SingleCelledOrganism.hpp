@@ -9,7 +9,7 @@ namespace Evolution::Organism
     class SingleCelledOrganism : public IOrganismEntity
     {
     public:
-        SingleCelledOrganism(Organism::OrganismType);
+        SingleCelledOrganism(Organism::SpeciesType);
         ~SingleCelledOrganism() = default;
         SingleCelledOrganism(const SingleCelledOrganism &) = default;
         SingleCelledOrganism &operator=(const SingleCelledOrganism &) = default;

@@ -1,42 +1,32 @@
-// #ifndef IPOINTOFINTERESTENTITY_HPP
-// #define IPOINTOFINTERESTENTITY_HPP
+#ifndef IPOINTOFINTERESTENTITY_HPP
+#define IPOINTOFINTERESTENTITY_HPP
 
-// #include "IEntity.hpp"
-// #include "IConfig.hpp"
+#include "IEntity.hpp"
+#include "IBehaviourHandler.hpp"
+#include "IConfig.hpp"
 
-// namespace Evolution
-// {
-//     namespace PointOfInterest
-//     {
-//         enum class PointOfInterestType : uint8_t
-//         {
-//             INVALID = 254,
-//             POND = 0
-//         };
+namespace Evolution
+{
+    namespace PointOfInterest
+    {
 
-//         struct Attributes
-//         {
-//             Resolution Speed{0};
-//             Resolution m_vision{0};
-//             Resolution m_stamina{0};
-//             Resolution m_energy{0};
-//         };
+        class IPointOfInterestEntity : public CEntityWrapper<sf::CircleShape>
+        {
+        public:
+            std::shared_ptr<Evolution::Organism::Attributes> GetAttributes() const override
+            {
+                return m_attributes;
+            }
 
-//         class IPointOfInterestEntity : public CEntityWrapper<sf::CircleShape>
-//         {
-//         public:
-//             Attributes GetAttributes() const
-//             {
-//                 return m_attributes;
-//             }
+            NFResolution32 GetEntityId() override
+            {
+                return m_attributes->id;
+            }
 
-//         protected:
-//             void OnEncounter();
+        protected:
+            std::shared_ptr<Evolution::Organism::Attributes> m_attributes;
+        };
+    }
+}
 
-//             Attributes m_attributes;
-//             PointOfInterestType m_foodType;
-//         };
-//     }
-// }
-
-// #endif
+#endif

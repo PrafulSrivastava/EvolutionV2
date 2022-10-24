@@ -1,4 +1,6 @@
 #include "Reaction.hpp"
+#include "CUtility.hpp"
+
 #include <iostream>
 
 namespace Evolution
@@ -17,15 +19,15 @@ namespace Evolution
             ReactionType react{};
             switch (reactInfo.org->type)
             {
-            case Evolution::Organism::OrganismType::CARNIVORE:
+            case Evolution::Organism::SpeciesType::CARNIVORE:
                 react = FetchCarnivoreReaction(reactInfo);
                 break;
 
-            case Evolution::Organism::OrganismType::HERBIVORE:
+            case Evolution::Organism::SpeciesType::HERBIVORE:
                 react = FetchHerbivoreReaction(reactInfo);
                 break;
 
-            case Evolution::Organism::OrganismType::OMNIVORE:
+            case Evolution::Organism::SpeciesType::OMNIVORE:
                 react = FetchOmnivoreReaction(reactInfo);
                 break;
 
@@ -43,14 +45,17 @@ namespace Evolution
 
             switch (reactInfo.target->type)
             {
-            case Organism::OrganismType::HERBIVORE:
+            case Organism::SpeciesType::HERBIVORE:
                 reaction = ReactionType::KILL;
                 break;
-            case Organism::OrganismType::CARNIVORE:
+            case Organism::SpeciesType::CARNIVORE:
                 reaction = ReactionType::IGNORE;
                 break;
-            case Organism::OrganismType::OMNIVORE:
+            case Organism::SpeciesType::OMNIVORE:
                 reaction = ReactionType::FIGHT;
+                break;
+            case Organism::SpeciesType::POI:
+                reaction = ReactionType::IGNORE;
                 break;
             }
 
@@ -70,7 +75,7 @@ namespace Evolution
             }
 
             // Desperate to increase health
-            else if (reactInfo.target->energy <= Organism::MinThresholdEnergy)
+            else if (reactInfo.target->energy <= Organism::MinThresholdEnergy && reactInfo.target->type != Organism::SpeciesType::POI)
             {
                 // reaction = ReactionType::EAT;
                 reaction = ReactionType::KILL;
@@ -90,14 +95,17 @@ namespace Evolution
 
             switch (reactInfo.target->type)
             {
-            case Organism::OrganismType::HERBIVORE:
+            case Organism::SpeciesType::HERBIVORE:
                 reaction = ReactionType::GROUP;
                 break;
-            case Organism::OrganismType::CARNIVORE:
+            case Organism::SpeciesType::CARNIVORE:
                 reaction = ReactionType::RUN;
                 break;
-            case Organism::OrganismType::OMNIVORE:
+            case Organism::SpeciesType::OMNIVORE:
                 reaction = ReactionType::FIGHT;
+                break;
+            case Organism::SpeciesType::POI:
+                reaction = ReactionType::KILL;
                 break;
             }
 
@@ -126,13 +134,13 @@ namespace Evolution
 
             switch (reactInfo.target->type)
             {
-            case Organism::OrganismType::HERBIVORE:
+            case Organism::SpeciesType::HERBIVORE:
                 reaction = ReactionType::KILL;
                 break;
-            case Organism::OrganismType::CARNIVORE:
+            case Organism::SpeciesType::CARNIVORE:
                 reaction = ReactionType::FIGHT;
                 break;
-            case Organism::OrganismType::OMNIVORE:
+            case Organism::SpeciesType::OMNIVORE:
                 reaction = ReactionType::GROUP;
                 break;
             }
@@ -193,6 +201,10 @@ namespace Evolution
                 operations.push_back(Movement::MovementOperation::IncrementSpeed);
                 break;
 
+            case Behaviour::ReactionType::KILL:
+                operations.push_back(Movement::MovementOperation::ChangeMotionToKill);
+                break;
+
             default:
                 break;
             }
@@ -237,20 +249,20 @@ namespace Evolution
             return operations;
         }
 
-        std::vector<Movement::MovementOperation> Reaction::React(Evolution::Organism::OrganismType type, Behaviour::ReactionType reaction)
+        std::vector<Movement::MovementOperation> Reaction::React(Evolution::Organism::SpeciesType type, Behaviour::ReactionType reaction)
         {
             std::vector<Movement::MovementOperation> operations;
             switch (type)
             {
-            case Evolution::Organism::OrganismType::CARNIVORE:
+            case Evolution::Organism::SpeciesType::CARNIVORE:
                 operations = std::move(ReactCarnivore(reaction));
                 break;
 
-            case Evolution::Organism::OrganismType::HERBIVORE:
+            case Evolution::Organism::SpeciesType::HERBIVORE:
                 operations = std::move(ReactHerbivore(reaction));
                 break;
 
-            case Evolution::Organism::OrganismType::OMNIVORE:
+            case Evolution::Organism::SpeciesType::OMNIVORE:
                 operations = std::move(ReactOmnivore(reaction));
                 break;
 

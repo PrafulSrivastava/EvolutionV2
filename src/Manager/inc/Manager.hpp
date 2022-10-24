@@ -4,6 +4,7 @@
 #include "IManager.hpp"
 #include "IMovement.hpp"
 #include "IOrganismEntity.hpp"
+#include "IPointOfInterest.hpp"
 #include <vector>
 #include <memory>
 #include "EntityMatrix.hpp"
@@ -23,7 +24,7 @@ namespace Evolution::Manager
 
         void RunMainLoop();
         void RunGameLoop();
-        void AddEntity(std::shared_ptr<Evolution::Organism::IOrganismEntity>);
+        void AddEntity(std::shared_ptr<Evolution::CEntityWrapper<sf::CircleShape>>);
         void Init();
         void Shutdown() override;
 

@@ -16,7 +16,7 @@ namespace Evolution
         m_font.loadFromFile(Utility::FontPath);
     }
 
-    Organism::Attributes CUtility::GenerateRandomAttributes(Organism::OrganismType type)
+    Organism::Attributes CUtility::GenerateRandomAttributes(Organism::SpeciesType type)
     {
 
         Organism::Attributes attributes;
@@ -30,21 +30,27 @@ namespace Evolution
         // attributes.visionDepth = 300;
         switch (type)
         {
-        case Organism::OrganismType::CARNIVORE:
+        case Organism::SpeciesType::CARNIVORE:
         {
             GenerateRandomCarnivoreAttributes(attributes);
             break;
         }
 
-        case Organism::OrganismType::HERBIVORE:
+        case Organism::SpeciesType::HERBIVORE:
         {
             GenerateRandomHerbivoreAttributes(attributes);
             break;
         }
 
-        case Organism::OrganismType::OMNIVORE:
+        case Organism::SpeciesType::OMNIVORE:
         {
             GenerateRandomOmnivoreAttributes(attributes);
+            break;
+        }
+
+        case Organism::SpeciesType::POI:
+        {
+            GenerateRandomPOIAttributes(attributes);
             break;
         }
 
@@ -84,12 +90,37 @@ namespace Evolution
         attributes.visionDepth += Organism::OmnivoreConeDepthOffset;
     }
 
+    void CUtility::GenerateRandomPOIAttributes(Organism::Attributes &attributes)
+    {
+        switch (attributes.subType)
+        {
+        case Organism::SpeciesSubType::VEGETATION:
+        {
+            GenerateRandomHerbAttributes(attributes);
+            break;
+        }
+
+        default:
+            break;
+        }
+    }
+
+    void CUtility::GenerateRandomHerbAttributes(Organism::Attributes &attributes)
+    {
+        attributes.energy += Organism::HerbEnergyOffset;
+        attributes.speed += Organism::HerbSpeedOffset;
+        attributes.stamina += Organism::HerbStaminaOffset;
+        attributes.aggression += Organism::HerbAggressionOffset;
+        attributes.visionConeAngle += Organism::HerbConeAngleOffset;
+        attributes.visionDepth += Organism::HerbConeDepthOffset;
+    }
+
     void CUtility::SetOriginToCenter(CEntityWrapper<sf::CircleShape> &entity)
     {
         entity.setOrigin(entity.getRadius(), entity.getRadius());
     }
 
-    void CUtility::SetRandomSpawnStats(CEntityWrapper<sf::CircleShape> &entity, Organism::OrganismType type)
+    void CUtility::SetRandomSpawnStats(CEntityWrapper<sf::CircleShape> &entity, Organism::SpeciesType type)
     {
         entity.setPosition(GetRandomValueInRange(0, Utility::Width), GetRandomValueInRange(0, Utility::Height));
         entity.setPointCount(GetRandomValueInRange(Organism::MinEdges, Organism::MaxEdges));
@@ -100,21 +131,27 @@ namespace Evolution
 
         switch (type)
         {
-        case Organism::OrganismType::CARNIVORE:
+        case Organism::SpeciesType::CARNIVORE:
         {
             entity.setFillColor(Organism::CarnivoreSpawnColor);
             break;
         }
 
-        case Organism::OrganismType::HERBIVORE:
+        case Organism::SpeciesType::HERBIVORE:
         {
             entity.setFillColor(Organism::HerbivoreSpawnColor);
             break;
         }
 
-        case Organism::OrganismType::OMNIVORE:
+        case Organism::SpeciesType::OMNIVORE:
         {
             entity.setFillColor(Organism::OmnivoreSpawnColor);
+            break;
+        }
+
+        case Organism::SpeciesType::POI:
+        {
+            entity.setFillColor(Organism::HerbsSpawnColor);
             break;
         }
 
@@ -266,9 +303,10 @@ namespace Evolution
         RegisterEnum<MovementType>(MovementType::Randomly, "Randomly");
 
         using namespace Organism;
-        RegisterEnum<OrganismType>(OrganismType::CARNIVORE, "CARNIVORE");
-        RegisterEnum<OrganismType>(OrganismType::HERBIVORE, "HERBIVORE");
-        RegisterEnum<OrganismType>(OrganismType::OMNIVORE, "OMNIVORE");
+        RegisterEnum<SpeciesType>(SpeciesType::CARNIVORE, "CARNIVORE");
+        RegisterEnum<SpeciesType>(SpeciesType::HERBIVORE, "HERBIVORE");
+        RegisterEnum<SpeciesType>(SpeciesType::OMNIVORE, "OMNIVORE");
+        RegisterEnum<SpeciesType>(SpeciesType::POI, "POI");
 
         using namespace Behaviour;
         RegisterEnum<ReactionType>(ReactionType::FIGHT, "FIGHT");

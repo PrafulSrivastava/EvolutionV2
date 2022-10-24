@@ -90,7 +90,7 @@ namespace Evolution
             Manager::EntityId m_mostPriorityTarget;
             bool m_hasNewPoi{false};
             ReactionCb m_reactionCb{nullptr};
-            Organism::OrganismType m_type{Organism::OrganismType::INVALID};
+            Organism::SpeciesType m_type{Organism::SpeciesType::INVALID};
         };
     }
 }

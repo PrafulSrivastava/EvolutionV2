@@ -21,7 +21,7 @@ namespace Evolution::Behaviour
     {
     public:
         // BehaviourHandler() = default;
-        BehaviourHandler(Organism::OrganismType);
+        BehaviourHandler(Organism::SpeciesType);
         ~BehaviourHandler() = default;
         BehaviourHandler(const BehaviourHandler &) = default;
         BehaviourHandler &operator=(const BehaviourHandler &) = default;

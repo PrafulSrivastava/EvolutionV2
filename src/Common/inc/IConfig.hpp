@@ -41,14 +41,15 @@ namespace Evolution
         using Priority = Resolution;
         using EntityId = NFResolution32;
         constexpr auto OrganismCount = 5;
-        constexpr auto CarnivoreCount = 5;
-        constexpr auto HerbivoreCount = 30;
+        constexpr auto CarnivoreCount = 3;
+        constexpr auto HerbivoreCount = 10;
         constexpr auto OmnivoreCount = 0;
+        constexpr auto HerbCount = 40;
         constexpr auto InvalidEntityId = -1;
     }
     namespace Utility
     {
-        constexpr auto Height = 800;
+        constexpr auto Height = 600;
         constexpr auto FrameLimit = 120;
         constexpr auto Width = 800;
         constexpr auto WindowName = "EVOLUTION";
@@ -117,14 +118,12 @@ namespace Evolution
             ChangeMotionToRun,
         };
 
-        struct MovementAttribute
+        struct TargetMovementInfo
         {
             std::vector<Movement::MovementOperation> operations;
             Manager::EntityId targetId;
             Resolution offset;
         };
-
-        using Operations = MovementAttribute;
     }
 
     namespace Position
@@ -144,12 +143,19 @@ namespace Evolution
 
     namespace Organism
     {
-        enum class OrganismType : uint8_t
+        enum class SpeciesType : uint8_t
         {
             INVALID = 254,
             HERBIVORE = 0,
             CARNIVORE = 1,
-            OMNIVORE = 2
+            OMNIVORE = 2,
+            POI = 3
+        };
+
+        enum class SpeciesSubType : uint8_t
+        {
+            // PointOfInterest
+            VEGETATION = 0,
         };
 
         struct Attributes
@@ -163,8 +169,8 @@ namespace Evolution
             Resolution aggression{0};
             NFResolution32 id;
             sf::Vector2f position;
-
-            OrganismType type;
+            SpeciesType type;
+            SpeciesSubType subType;
             sf::Text label;
         };
 
@@ -180,36 +186,42 @@ namespace Evolution
         constexpr auto CarnivoreEnergyOffset = 50;
         constexpr auto HerbivoreEnergyOffset = 20;
         constexpr auto OmnivoreEnergyOffset = 35;
+        constexpr auto HerbEnergyOffset = 40;
 
         constexpr auto MaxSpawnStamina = 50;
         constexpr auto MinSpawnStamina = 0;
         constexpr auto CarnivoreStaminaOffset = 20;
         constexpr auto HerbivoreStaminaOffset = 50;
         constexpr auto OmnivoreStaminaOffset = 35;
+        constexpr auto HerbStaminaOffset = 50;
 
         constexpr auto MaxSpawnConeAngle = 90;
         constexpr auto MinSpawnConeAngle = 45;
         constexpr auto CarnivoreConeAngleOffset = 30;
         constexpr auto HerbivoreConeAngleOffset = 50;
         constexpr auto OmnivoreConeAngleOffset = 15;
+        constexpr auto HerbConeAngleOffset = 0;
 
         constexpr auto MaxSpawnConeDepth = 100;
         constexpr auto MinSpawnConeDepth = 50;
         constexpr auto CarnivoreConeDepthOffset = 0;
         constexpr auto HerbivoreConeDepthOffset = 50;
         constexpr auto OmnivoreConeDepthOffset = 15;
+        constexpr auto HerbConeDepthOffset = 0;
 
         constexpr auto MaxSpawnSpeed = 50;
         constexpr auto MinSpawnSpeed = 0;
         constexpr auto CarnivoreSpeedOffset = 30;
         constexpr auto HerbivoreSpeedOffset = 50;
         constexpr auto OmnivoreSpeedOffset = 25;
+        constexpr auto HerbSpeedOffset = 0;
 
         constexpr auto MaxSpawnAggression = 50;
         constexpr auto MinSpawnAggression = 0;
         constexpr auto CarnivoreAggressionOffset = 50;
         constexpr auto HerbivoreAggressionOffset = 10;
         constexpr auto OmnivoreAggressionOffset = 30;
+        constexpr auto HerbAggressionOffset = 0;
 
         constexpr auto MinEdges = 3;
         constexpr auto MaxEdges = 10;
@@ -217,8 +229,9 @@ namespace Evolution
         constexpr auto MaxRadius = 10;
         const sf::Color SpawnColor = sf::Color::White;
         const sf::Color CarnivoreSpawnColor = sf::Color::Red;
-        const sf::Color HerbivoreSpawnColor = sf::Color::Green;
+        const sf::Color HerbivoreSpawnColor = sf::Color::Blue;
         const sf::Color OmnivoreSpawnColor = sf::Color::Yellow;
+        const sf::Color HerbsSpawnColor = sf::Color::Green;
     }
 
     namespace Behaviour
@@ -234,9 +247,8 @@ namespace Evolution
             EAT = 5
         };
 
-        using ReactionCb = std::function<void(Movement::Operations)>;
+        using ReactionCb = std::function<void(Movement::TargetMovementInfo)>;
     }
-
 }
 
 #endif

@@ -1,6 +1,6 @@
 {
   "Version": 1.0,
-  "LoggingLevel" : 4,
-  "LoggingType": "File",
+  "LoggingLevel": 4,
+  "LoggingType": "Console",
   "LogFilePath": "/home/pruthvi/amaterasu/current/EvolutionV2/log.txt"
 }

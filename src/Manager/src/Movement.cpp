@@ -145,10 +145,10 @@ namespace Evolution::Manager
         if (info.steps <= 0)
         {
             entity->setRotation(GetRandomDirectionForEntity(id));
-            if (entity->getFillColor() == sf::Color::White)
-            {
-                entity->setFillColor(sf::Color::Green);
-            }
+            // if (entity->getFillColor() == sf::Color::White)
+            // {
+            //     entity->setFillColor(sf::Color::Blue);
+            // }
         }
 
         entity->setPosition(GetNewPosition(entity->getRotation(), attributes->speed, entity->getPosition()));
@@ -190,7 +190,7 @@ namespace Evolution::Manager
 
         auto org = m_matrix->GetEntity(orgid);
 
-        org->setFillColor(sf::Color::Magenta);
+        // org->setFillColor(sf::Color::Magenta);
         auto attributes = org->GetAttributes();
 
         if (m_matrix->GetEntityMatrix().find(targetid) != m_matrix->GetEntityMatrix().end())
@@ -208,14 +208,14 @@ namespace Evolution::Manager
             {
                 Log(Log::INFO, orgid, "Killed", targetid);
 
-                org->setFillColor(sf::Color::Red);
+                // org->setFillColor(sf::Color::Red);
                 m_unregisteredList.push_back({orgid, targetid});
                 info.type = Evolution::Movement::MovementType::Randomly;
             }
             info.steps -= Utility::StepReductionFactor;
             if (info.steps <= 0)
             {
-                org->setFillColor(sf::Color::Red);
+                // org->setFillColor(sf::Color::Red);
                 info.type = Evolution::Movement::MovementType::Randomly;
             }
         }
@@ -226,8 +226,6 @@ namespace Evolution::Manager
 
     void Movement::UpdateMovementOperation(const Evolution::Manager::EntityId &orgid, const Evolution::Manager::EntityId &targetid, Evolution::Movement::MovementOperation operation)
     {
-        Log(Log::DEBUG, "\t", pEnum(operation));
-
         auto org = m_matrix->GetEntity(orgid);
         switch (operation)
         {
@@ -265,7 +263,7 @@ namespace Evolution::Manager
             org->setFillColor(sf::Color::Yellow);
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToRun:
-            org->setFillColor(sf::Color::White);
+            // org->setFillColor(sf::Color::White);
             m_organismsMovementInfo[orgid].steps += 100;
             break;
         }

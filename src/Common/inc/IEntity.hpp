@@ -2,6 +2,7 @@
 #define IENTITY_HPP
 
 #include <iostream>
+#include <memory>
 #include <SFML/Graphics.hpp>
 #include "IConfig.hpp"
 
@@ -16,7 +17,8 @@ namespace Evolution
         INVALID = 200,
         VACOULE = 0,
         BACTERIA = 1,
-        SingleCelledOrganism = 2
+        SingleCelledOrganism = 2,
+        Herb = 3
     };
 
     template <typename Entity>
@@ -30,14 +32,22 @@ namespace Evolution
         CEntityWrapper(CEntityWrapper &&) = default;
         CEntityWrapper &operator=(CEntityWrapper &&) = default;
 
-        NFResolution32 GetEntityId();
+        virtual NFResolution32 GetEntityId();
         virtual void SetEntityId(NFResolution32 id);
-        bool IsAlive();
-        void SetLiveStatus(bool);
+        virtual bool IsAlive();
+        virtual void SetLiveStatus(bool);
         virtual void OnCollision(Species);
         virtual void Spawn();
         virtual void Destroy();
         virtual void RunMainLoop();
+        virtual std::shared_ptr<Organism::Attributes> GetAttributes() const { return nullptr; }
+        virtual void RemoveIfNotInVision(const Manager::EntityId &id) {}
+        virtual void OnCollision(std::shared_ptr<Organism::Attributes> targetAttributes) {}
+        virtual void OnEncounter(std::shared_ptr<Organism::Attributes> orgAttributes, std::shared_ptr<Organism::Attributes> targetAttributes) {}
+        virtual void SetMostPriorityTarget(Manager::EntityId index) {}
+        virtual void OnReaction(Movement::TargetMovementInfo operations) {}
+        virtual void SetCurrentPos(sf::Vector2f pos) {}
+        virtual Movement::TargetMovementInfo FetchMovementOperations() { return Movement::TargetMovementInfo(); };
 
         Species GetSpecies()
         {

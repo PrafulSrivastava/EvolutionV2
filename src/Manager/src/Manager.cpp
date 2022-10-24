@@ -3,6 +3,7 @@
 #include "IConfig.hpp"
 
 #include "SingleCelledOrganism.hpp"
+#include "Herb.hpp"
 #include "CUtility.hpp"
 #include "BehaviourHandler.hpp"
 #include <math.h>
@@ -48,35 +49,43 @@ namespace Evolution::Manager
 
         // for (int i = 0; i < OrganismCount; i++)
         // {
-        //     std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(static_cast<Organism::OrganismType>(CUtility::GetRandomValueInRange(0, 2)));
+        //     std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(static_cast<Organism::SpeciesType>(CUtility::GetRandomValueInRange(0, 2)));
         //     AddEntity(org);
         // }
         for (int i = 0; i < CarnivoreCount; i++)
         {
-            std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::OrganismType::CARNIVORE);
+            std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::SpeciesType::CARNIVORE);
             AddEntity(org);
         }
         for (int i = 0; i < HerbivoreCount; i++)
         {
-            std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::OrganismType::HERBIVORE);
+            std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::SpeciesType::HERBIVORE);
             AddEntity(org);
         }
-        for (int i = 0; i < OmnivoreCount; i++)
+        // for (int i = 0; i < OmnivoreCount; i++)
+        // {
+        //     std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::SpeciesType::OMNIVORE);
+        //     AddEntity(org);
+        // }
+
+        for (int i = 0; i < HerbCount; i++)
         {
-            std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::OrganismType::OMNIVORE);
-            AddEntity(org);
+            std::shared_ptr<Evolution::PointOfInterest::IPointOfInterestEntity> poi = std::make_shared<Evolution::PointOfInterest::Herb>(Organism::SpeciesType::POI);
+            AddEntity(poi);
         }
     }
 
-    void Manager::AddEntity(std::shared_ptr<Evolution::Organism::IOrganismEntity> org)
+    void Manager::AddEntity(std::shared_ptr<Evolution::CEntityWrapper<sf::CircleShape>> org)
     {
-        // Evolution::Logger::LogD(4, "Abcd", 5, 2.0);
-
         auto id = m_matrix->AddEntity(org);
         org->SetEntityId(id);
         org->GetAttributes()->label = CUtility::GenerateLabels(org->GetAttributes()->id);
         org->Spawn();
-        m_movement->RegisterToMove(id, Evolution::Movement::MovementType::Randomly);
+
+        if (org->GetAttributes()->type != Organism::SpeciesType::POI)
+        {
+            m_movement->RegisterToMove(id, Evolution::Movement::MovementType::Randomly);
+        }
     }
 
     void Manager::RunMainLoop()
@@ -85,7 +94,7 @@ namespace Evolution::Manager
         {
             for (auto j : m_matrix->GetEntityMatrix())
             {
-                if (i.first == j.first)
+                if (i.first == j.first || m_matrix->GetEntity(i.first)->GetAttributes()->type == Organism::SpeciesType::POI)
                 {
                     continue;
                 }

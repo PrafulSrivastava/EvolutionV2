@@ -44,6 +44,8 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/Manager/inc
     ${CMAKE_SOURCE_DIR}/src/Behaviour/api/
     ${CMAKE_SOURCE_DIR}/src/Behaviour/inc
+    ${CMAKE_SOURCE_DIR}/src/PointOfInterest/api/
+    ${CMAKE_SOURCE_DIR}/src/PointOfInterest/inc
 )
 
 link_directories(

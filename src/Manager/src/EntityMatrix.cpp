@@ -7,7 +7,7 @@ namespace Evolution::Manager
     {
     }
 
-    EntityId EntityMatrix::AddEntity(std::shared_ptr<Evolution::Organism::IOrganismEntity> org)
+    EntityId EntityMatrix::AddEntity(std::shared_ptr<Evolution::CEntityWrapper<sf::CircleShape>> org)
     {
         m_entityMatrix[++m_entityId];
         m_organismList[m_entityId] = org;
@@ -59,7 +59,7 @@ namespace Evolution::Manager
         return idMax;
     }
 
-    std::shared_ptr<Evolution::Organism::IOrganismEntity> EntityMatrix::GetEntity(const EntityId &id)
+    std::shared_ptr<Evolution::CEntityWrapper<sf::CircleShape>> EntityMatrix::GetEntity(const EntityId &id)
     {
         return m_organismList[id];
     }
@@ -101,8 +101,7 @@ namespace Evolution::Manager
         itorg->second.erase(target);
     }
 
-    Priority
-    EntityMatrix::FetchPriority(const EntityId &org, const EntityId &target)
+    Priority EntityMatrix::FetchPriority(const EntityId &org, const EntityId &target)
     {
         Priority priority{0}, typePriority{0};
 
@@ -118,19 +117,28 @@ namespace Evolution::Manager
         {
             switch (targetInfo->type)
             {
-            case Organism::OrganismType::CARNIVORE:
+            case Organism::SpeciesType::CARNIVORE:
             {
                 typePriority += 100;
                 break;
             }
 
-            case Organism::OrganismType::HERBIVORE:
+            case Organism::SpeciesType::POI:
+            {
+                if (orgInfo->type == Organism::SpeciesType::HERBIVORE)
+                {
+                    typePriority += 70;
+                }
+                break;
+            }
+
+            case Organism::SpeciesType::HERBIVORE:
             {
                 typePriority += 100;
                 break;
             }
 
-            case Organism::OrganismType::OMNIVORE:
+            case Organism::SpeciesType::OMNIVORE:
             {
                 typePriority += 50;
                 break;
@@ -141,8 +149,25 @@ namespace Evolution::Manager
             }
         }
 
-        priority += 0.35 * (dAggression + dEnergy) + 0.15 * (dSpeed + dStamina);
-        priority += (0.5 * priority + 0.5 * (typePriority));
+        Log(Log::DEBUG, __func__, "Org:", org, "Type:", pEnum(orgInfo->type));
+        Log(Log::DEBUG, __func__, "Target:", target, "Type:", pEnum(targetInfo->type));
+        Log(Log::DEBUG, __func__, "Type Priority:", typePriority);
+
+        // Threat offset
+        if (targetInfo->type != Organism::SpeciesType::POI)
+        {
+            priority += 0.35 * (dAggression + dEnergy) + 0.15 * (dSpeed + dStamina);
+        }
+        else
+        {
+            priority += 0.5 * (dEnergy + dStamina);
+        }
+
+        Log(Log::DEBUG, __func__, "Initial Priority:", priority);
+
+        priority = 0.5 * priority + 0.5 * typePriority;
+
+        Log(Log::DEBUG, __func__, "Priority:", priority);
 
         return priority;
     }

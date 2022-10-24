@@ -22,11 +22,13 @@ namespace Evolution
         static Utility::Quadrant GetQuadrant(Resolution degree);
         static sf::Color GetRandomColor();
         static NFResolution32 GetRandomValueInRange(NFResolution32 low, NFResolution32 high);
-        static Organism::Attributes GenerateRandomAttributes(Organism::OrganismType);
+        static Organism::Attributes GenerateRandomAttributes(Organism::SpeciesType);
         static void GenerateRandomCarnivoreAttributes(Organism::Attributes &);
         static void GenerateRandomHerbivoreAttributes(Organism::Attributes &);
         static void GenerateRandomOmnivoreAttributes(Organism::Attributes &);
-        static void SetRandomSpawnStats(CEntityWrapper<sf::CircleShape> &, Organism::OrganismType);
+        static void GenerateRandomPOIAttributes(Organism::Attributes &);
+        static void GenerateRandomHerbAttributes(Organism::Attributes &);
+        static void SetRandomSpawnStats(CEntityWrapper<sf::CircleShape> &, Organism::SpeciesType);
         static void SetOriginToCenter(CEntityWrapper<sf::CircleShape> &);
         static Utility::Choice HeadsOrTails();
         static NFResolution16 GetProbability();
