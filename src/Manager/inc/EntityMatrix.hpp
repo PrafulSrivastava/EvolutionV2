@@ -33,6 +33,7 @@ namespace Evolution::Manager
         void ResetPriority(const EntityId &, const EntityId &);
         Priority GetPriority(const EntityId &, const EntityId &);
         std::unordered_map<EntityId, std::unordered_map<EntityId, Priority>> GetEntityMatrix();
+        void FlipVisionInfo();
         void RunMainLoop();
 
     private:
@@ -42,6 +43,8 @@ namespace Evolution::Manager
 
         Priority FetchPriority(const EntityId &, const EntityId &);
         std::shared_ptr<sf::RenderWindow> m_window;
+        std::shared_ptr<sf::RenderWindow> m_debugWindow;
+        bool m_isVisionInfoOn{false};
     };
 }
 

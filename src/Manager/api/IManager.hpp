@@ -20,6 +20,7 @@ namespace Evolution
 
         protected:
             std::shared_ptr<sf::RenderWindow> m_window{nullptr};
+            std::shared_ptr<sf::RenderWindow> m_debugWindow{nullptr};
         };
     }
 }

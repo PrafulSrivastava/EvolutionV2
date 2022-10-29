@@ -5,18 +5,17 @@
 #include "Reaction.hpp"
 #include <unordered_map>
 #include <mutex>
+
+#ifdef DEBUG_MODE
+namespace Evolution::Organism
+{
+    class IOrganismEntity;
+}
+#endif
 namespace Evolution
 {
     namespace Behaviour
     {
-
-        struct OrganismReactionInfo
-        {
-            ReactionType reaction;
-            Manager::EntityId id;
-        };
-
-        using MapOfOrganismInfo = std::unordered_map<NFResolution32, OrganismReactionInfo>;
         class IBehaviourHandler
         {
         public:
@@ -83,6 +82,10 @@ namespace Evolution
             {
                 m_orgId = id;
             }
+
+#ifdef DEBUG_MODE
+            friend Evolution::Organism::IOrganismEntity;
+#endif
 
         protected:
             Manager::EntityId m_orgId{-1};

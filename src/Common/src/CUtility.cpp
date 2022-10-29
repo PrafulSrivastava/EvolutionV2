@@ -1,18 +1,21 @@
 #include "CUtility.hpp"
 #include "IConfig.hpp"
 #include <iostream>
+#include <map>
 #include <math.h>
 #include <random>
 
 namespace Evolution
 {
     std::shared_ptr<sf::RenderWindow> CUtility::m_windowPtr = nullptr;
+    std::shared_ptr<sf::RenderWindow> CUtility::m_debugWindowPtr = nullptr;
     std::map<std::size_t, std::string> CUtility::m_enumTranslator{};
     sf::Font CUtility::m_font;
 
-    void CUtility::Init(std::shared_ptr<sf::RenderWindow> window)
+    void CUtility::Init(std::shared_ptr<sf::RenderWindow> window, std::shared_ptr<sf::RenderWindow> debugWindow)
     {
         m_windowPtr = window;
+        m_debugWindowPtr = debugWindow;
         m_font.loadFromFile(Utility::FontPath);
     }
 
@@ -165,18 +168,40 @@ namespace Evolution
         return std::sqrt(std::pow((p1.x - p2.x), 2) + std::pow((p1.y - p2.y), 2));
     }
 
-    sf::Text CUtility::GenerateLabels(Manager::EntityId id)
+    sf::Text CUtility::PrepareText(const std::string &str, sf::Color color, sf::Text::Style style, NFResolution16 size, bool setToCentre)
     {
         sf::Text text;
-        text.setFillColor(Utility::LabelColor);
-        text.setCharacterSize(Utility::LabelSize);
+        text.setFillColor(color);
+        text.setCharacterSize(size);
         text.setFont(m_font);
-        text.setStyle(sf::Text::Style::Bold);
-        text.setString(std::to_string(id));
+        text.setStyle(style);
+        text.setString(str);
         sf::FloatRect textRect = text.getLocalBounds();
-        text.setOrigin(textRect.left + textRect.width / 2.0f,
-                       textRect.top + textRect.height / 2.0f);
+        if (setToCentre)
+        {
+            text.setOrigin(textRect.left + textRect.width / 2.0f,
+                           textRect.top + textRect.height / 2.0f);
+        }
         return text;
+    }
+
+    sf::Text CUtility::GenerateLabels(Manager::EntityId id)
+    {
+        return PrepareText(std::to_string(id), Utility::LabelColor, sf::Text::Style::Bold, Utility::LabelSize, true);
+    }
+
+    void CUtility::DisplayEntityStats(std::shared_ptr<CEntityWrapper<sf::CircleShape>> entity, std::string movementInfo)
+    {
+        if (entity == nullptr)
+        {
+            return;
+        }
+        auto resultStr = entity->ToString() + movementInfo;
+
+        auto stats = PrepareText(resultStr, Utility::StatsKeyColor, sf::Text::Style::Bold, Utility::StatsSize, false);
+        stats.setPosition({Utility::StatsXPos, Utility::StatsYPos});
+
+        m_debugWindowPtr->draw(stats);
     }
 
     void CUtility::AddLabels(sf::Text &label, sf::Vector2f origin)
@@ -301,12 +326,15 @@ namespace Evolution
 
         RegisterEnum<MovementType>(MovementType::Purposely, "Purposely");
         RegisterEnum<MovementType>(MovementType::Randomly, "Randomly");
+        RegisterEnum<MovementType>(MovementType::Chase, "Chase");
 
         using namespace Organism;
         RegisterEnum<SpeciesType>(SpeciesType::CARNIVORE, "CARNIVORE");
         RegisterEnum<SpeciesType>(SpeciesType::HERBIVORE, "HERBIVORE");
         RegisterEnum<SpeciesType>(SpeciesType::OMNIVORE, "OMNIVORE");
         RegisterEnum<SpeciesType>(SpeciesType::POI, "POI");
+
+        RegisterEnum<SpeciesSubType>(SpeciesSubType::VEGETATION, "VEGETATION");
 
         using namespace Behaviour;
         RegisterEnum<ReactionType>(ReactionType::FIGHT, "FIGHT");
@@ -316,4 +344,22 @@ namespace Evolution
         RegisterEnum<ReactionType>(ReactionType::RUN, "RUN");
         RegisterEnum<ReactionType>(ReactionType::EAT, "EAT");
     }
+
+    bool CUtility::IsInCircumference(CEntityWrapper<sf::CircleShape> &entity, sf::Vector2f point)
+    {
+        auto radius = entity.getRadius() * 2;
+        auto entityPos = entity.getPosition();
+
+        if (std::pow(point.x - entityPos.x, 2) + std::pow(point.y - entityPos.y, 2) <= std::pow(radius, 2))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    Resolution CUtility::GetAngleBetweenPoits(sf::Vector2f p1, sf::Vector2f p2)
+    {
+        return RadiansToDegree((p2.y - p1.y) / (p2.x - p1.x));
+    }
+
 }

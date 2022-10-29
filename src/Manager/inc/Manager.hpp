@@ -7,6 +7,8 @@
 #include "IPointOfInterest.hpp"
 #include <vector>
 #include <memory>
+#include <mutex>
+#include <thread>
 #include "EntityMatrix.hpp"
 #include "Logger.hpp"
 
@@ -23,6 +25,7 @@ namespace Evolution::Manager
         Manager &operator=(Manager &&) = default;
 
         void RunMainLoop();
+        void RunGameDebugLoop();
         void RunGameLoop();
         void AddEntity(std::shared_ptr<Evolution::CEntityWrapper<sf::CircleShape>>);
         void Init();
@@ -33,6 +36,9 @@ namespace Evolution::Manager
         bool HasCollided(EntityId viewer, EntityId viewee);
         std::shared_ptr<IMovement> m_movement{nullptr};
         std::shared_ptr<EntityMatrix> m_matrix{nullptr};
+        std::shared_ptr<std::thread> m_debugThread;
+        sf::Event m_event;
+        std::mutex m_mtx;
     };
 }
 

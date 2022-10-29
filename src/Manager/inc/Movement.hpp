@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <memory>
 #include "EntityMatrix.hpp"
+#include "CUtility.hpp"
 
 namespace Evolution::Manager
 {
@@ -25,6 +26,43 @@ namespace Evolution::Manager
         void MoveToPoint(sf::Vector2f) override;
         void UpdateMovementOperation(const Evolution::Manager::EntityId &, const Evolution::Manager::EntityId &, Evolution::Movement::MovementOperation) override;
 
+        std::string ToString(const Evolution::Manager::EntityId &id) override
+        {
+            if (m_organismsMovementInfo.find(id) == m_organismsMovementInfo.end())
+            {
+                return {};
+            }
+            const Evolution::Movement::MovementInfo &info = m_organismsMovementInfo[id];
+            std::string infoStr{};
+
+            infoStr += "#) ";
+            infoStr += "Hemisphere: ";
+            infoStr += pEnum(info.hemisphere);
+            infoStr += "\t";
+
+            infoStr += "#) ";
+            infoStr += "Quadrant: ";
+            infoStr += pEnum(info.quadrant);
+            infoStr += "\t";
+
+            infoStr += "#) ";
+            infoStr += "Steps: ";
+            infoStr += std::to_string(info.steps);
+            infoStr += "\n\n";
+
+            infoStr += "#) ";
+            infoStr += "TargetID: ";
+            infoStr += std::to_string(info.target);
+            infoStr += "\t";
+
+            infoStr += "#) ";
+            infoStr += "MovementType: ";
+            infoStr += pEnum(info.type);
+            infoStr += "\n";
+
+            return infoStr;
+        }
+
     private:
         float m_factor = 0.0001;
         void MoveRandomly(Evolution::Manager::EntityId);
@@ -39,8 +77,6 @@ namespace Evolution::Manager
             Resolution);
 
         NFResolution16 m_subscriptionId{-1};
-        std::unordered_map<Evolution::Manager::EntityId, MovementInfo> m_organismsMovementInfo;
-        std::vector<std::pair<Evolution::Manager::EntityId, Evolution::Manager::EntityId>> m_unregisteredList;
         std::shared_ptr<EntityMatrix> m_matrix{nullptr};
     };
 }

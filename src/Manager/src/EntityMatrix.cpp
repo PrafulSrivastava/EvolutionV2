@@ -61,26 +61,36 @@ namespace Evolution::Manager
 
     std::shared_ptr<Evolution::CEntityWrapper<sf::CircleShape>> EntityMatrix::GetEntity(const EntityId &id)
     {
+
+        Debug(if (m_organismList.find(id) == m_organismList.end()) {
+            return nullptr;
+        });
+
         return m_organismList[id];
     }
 
-    void EntityMatrix::RemoveEntity(const EntityId &org)
+    void EntityMatrix::RemoveEntity(const EntityId &id)
     {
-        m_entityMatrix.erase(org);
+        m_entityMatrix.erase(id);
 
         for (auto &item : m_entityMatrix)
         {
-            auto itorg = item.second.find(org);
+            auto itorg = item.second.find(id);
             if (itorg != item.second.end())
             {
                 item.second.erase(itorg);
             }
         }
 
-        auto itorg = m_organismList.find(org);
+        auto itorg = m_organismList.find(id);
         if (itorg != m_organismList.end())
         {
             m_organismList.erase(itorg);
+        }
+
+        for (auto &org : m_organismList)
+        {
+            org.second->RemoveIfNotInVision(id);
         }
     }
 
@@ -117,6 +127,7 @@ namespace Evolution::Manager
         {
             switch (targetInfo->type)
             {
+
             case Organism::SpeciesType::CARNIVORE:
             {
                 typePriority += 100;
@@ -125,9 +136,12 @@ namespace Evolution::Manager
 
             case Organism::SpeciesType::POI:
             {
-                if (orgInfo->type == Organism::SpeciesType::HERBIVORE)
+                if (targetInfo->subType == Organism::SpeciesSubType::VEGETATION)
                 {
-                    typePriority += 70;
+                    if (orgInfo->type != Organism::SpeciesType::CARNIVORE)
+                    {
+                        typePriority += 70;
+                    }
                 }
                 break;
             }
@@ -158,7 +172,7 @@ namespace Evolution::Manager
         {
             priority += 0.35 * (dAggression + dEnergy) + 0.15 * (dSpeed + dStamina);
         }
-        else
+        else if (targetInfo->subType == Organism::SpeciesSubType::VEGETATION && orgInfo->type != Organism::SpeciesType::CARNIVORE)
         {
             priority += 0.5 * (dEnergy + dStamina);
         }
@@ -182,6 +196,11 @@ namespace Evolution::Manager
         return m_entityMatrix;
     }
 
+    void EntityMatrix::FlipVisionInfo()
+    {
+        m_isVisionInfoOn = !m_isVisionInfoOn;
+    }
+
     void EntityMatrix::RunMainLoop()
     {
         for (auto org : m_organismList)
@@ -189,10 +208,11 @@ namespace Evolution::Manager
             org.second->RunMainLoop();
             m_window->draw(*org.second);
 
-#ifdef DEBUG_MODE
-            CUtility::ShowVisionInfo(org.second->GetAttributes()->visionDepth, org.second->GetAttributes()->visionConeAngle, org.second->getPosition(), org.second->getRotation());
-            CUtility::AddLabels(org.second->GetAttributes()->label, org.second->getPosition());
-#endif
+            if (m_isVisionInfoOn)
+            {
+                Debug(CUtility::ShowVisionInfo(org.second->GetAttributes()->visionDepth, org.second->GetAttributes()->visionConeAngle, org.second->getPosition(), org.second->getRotation());
+                      CUtility::AddLabels(org.second->GetAttributes()->label, org.second->getPosition()));
+            }
         }
     }
 

@@ -7,7 +7,21 @@
 #include <iostream>
 #include "Logger.hpp"
 
-#define pEnum(x) CUtility::GetEnumName<>(x)
+#ifdef DEBUG_MODE
+constexpr auto DebugMode = true;
+#else
+constexpr auto DebugMode = false;
+#endif
+
+#define Debug(cmd) \
+    if (DebugMode) \
+    {              \
+        cmd;       \
+    }
+
+#define Here Log(Log::INFO, __func__)
+
+#define pEnum(x) Evolution::CUtility::GetEnumName<>(x)
 
 #define Log(args, ...) Evolution::Utility::Logger::Logging(args, __VA_ARGS__)
 using Log = Evolution::Utility::LogLevel;
@@ -41,18 +55,25 @@ namespace Evolution
         using Priority = Resolution;
         using EntityId = NFResolution32;
         constexpr auto OrganismCount = 5;
-        constexpr auto CarnivoreCount = 3;
+        constexpr auto CarnivoreCount = 4;
         constexpr auto HerbivoreCount = 10;
         constexpr auto OmnivoreCount = 0;
-        constexpr auto HerbCount = 40;
+        constexpr auto HerbCount = 20;
         constexpr auto InvalidEntityId = -1;
+
+        class IMovement;
     }
     namespace Utility
     {
         constexpr auto Height = 600;
-        constexpr auto FrameLimit = 120;
         constexpr auto Width = 800;
-        constexpr auto WindowName = "EVOLUTION";
+        constexpr auto HeightDebugWindow = 800;
+        constexpr auto WidthDebugWindow = 800;
+        constexpr auto StatsXPos = WidthDebugWindow / 4;
+        constexpr auto StatsYPos = HeightDebugWindow / 4;
+        constexpr auto FrameLimit = 120;
+        constexpr auto WindowName = "Evolution";
+        constexpr auto DebugWindowName = "DebugInfo";
         constexpr auto Pi = 3.147;
         constexpr auto TotalAngle = 360;
         constexpr auto TotalHemisphere = 2;
@@ -68,8 +89,13 @@ namespace Evolution
         const auto ConeColor = sf::Color::White;
         constexpr auto LabelSize = 20;
         const auto LabelColor = sf::Color::Black;
-        constexpr auto FontPath = "../resource/font/FUTRFW.TTF";
+        constexpr auto FontPath = "../resource/font/times.ttf";
         constexpr auto ConfigPath = "../config/Application.json";
+        const auto StatsKeyColor = sf::Color::White;
+        const auto StatsValFontColor = sf::Color::White;
+        const auto HighlightColor = sf::Color::Cyan;
+        constexpr auto HighlightBoundry = 2;
+        constexpr auto StatsSize = 15;
 
         enum Quadrant : uint8_t
         {
@@ -118,6 +144,14 @@ namespace Evolution
             ChangeMotionToRun,
         };
 
+        struct MovementInfo
+        {
+            Evolution::Movement::MovementType type;
+            NFResolution16 steps;
+            Utility::Hemisphere hemisphere;
+            Utility::Quadrant quadrant;
+            Manager::EntityId target{Manager::InvalidEntityId};
+        };
         struct TargetMovementInfo
         {
             std::vector<Movement::MovementOperation> operations;
@@ -248,6 +282,14 @@ namespace Evolution
         };
 
         using ReactionCb = std::function<void(Movement::TargetMovementInfo)>;
+
+        struct OrganismReactionInfo
+        {
+            ReactionType reaction;
+            Manager::EntityId id;
+        };
+
+        using MapOfOrganismInfo = std::unordered_map<NFResolution32, OrganismReactionInfo>;
     }
 }
 
