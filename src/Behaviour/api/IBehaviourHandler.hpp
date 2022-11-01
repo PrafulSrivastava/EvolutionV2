@@ -56,6 +56,7 @@ namespace Evolution
                 m_reactionCb = callback;
             }
 
+            // This will Fetch the reaction of the target which encountered. Based on the target reaction the organism reaction can change. e.g. A Strong Herbivore(elephant) won't interfere or fight until the other guy tries to attack. In this scenario, the herbivore reaction can change.
             ReactionType FetchTargetReaction(Manager::EntityId target)
             {
                 if (m_organismsInView.find(target) != m_organismsInView.end())

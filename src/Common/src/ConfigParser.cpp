@@ -24,8 +24,7 @@ namespace Evolution::Utility
             return false;
         }
     }
-
-    Resolution ConfigParser::GetVersion()
+    NFResolution16 ConfigParser::GetVersion()
     {
         return m_jsonData["Version"];
     }
@@ -66,5 +65,56 @@ namespace Evolution::Utility
     {
         return m_jsonData["LogFilePath"];
     }
+    NFResolution16 ConfigParser::GetCarnivoreCount()
+    {
+        return m_jsonData["CarnivoreCount"];
+    }
+    NFResolution16 ConfigParser::GetHerbivoreCount()
+    {
+        return m_jsonData["HerbivoreCount"];
+    }
+    NFResolution16 ConfigParser::GetOmnivoreCount()
+    {
+        return m_jsonData["OmnivoreCount"];
+    }
+    NFResolution16 ConfigParser::GetHerbCount()
+    {
+        return m_jsonData["HerbCount"];
+    }
+    sf::Color ConfigParser::GetCarnivoreSpawnColor()
+    {
+        return GetColor(m_jsonData["CarnivoreSpawnColor"]);
+    }
+    sf::Color ConfigParser::GetHerbivoreSpawnColor()
+    {
+        return GetColor(m_jsonData["HerbivoreSpawnColor"]);
+    }
+    sf::Color ConfigParser::GetOmnivoreSpawnColor()
+    {
+        return GetColor(m_jsonData["OmnivoreSpawnColor"]);
+    }
+    sf::Color ConfigParser::GetHerbSpawnColor()
+    {
+        return GetColor(m_jsonData["HerbSpawnColor"]);
+    }
+    sf::Color ConfigParser::GetColor(std::string color)
+    {
+        if (color == "White")
+            return sf::Color::White;
 
+        else if (color == "Red")
+            return sf::Color::Red;
+
+        else if (color == "Green")
+            return sf::Color::Green;
+
+        else if (color == "Yellow")
+            return sf::Color::Yellow;
+
+        else if (color == "Blue")
+            return sf::Color::Blue;
+
+        else
+            return sf::Color::Black;
+    }
 }

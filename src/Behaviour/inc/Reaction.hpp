@@ -16,7 +16,7 @@ namespace Evolution
         {
             std::shared_ptr<Evolution::Organism::Attributes> org, target;
             Manager::Priority priority;
-            ReactionType reaction;
+            ReactionType targetReaction; // target reaction
         };
 
         class Reaction
@@ -30,6 +30,8 @@ namespace Evolution
             Reaction() = default;
             ~Reaction() = default;
 
+            bool AmICapable(ReactionInfo &);
+            Resolution GetCapability(std::shared_ptr<Evolution::Organism::Attributes>);
             ReactionType FetchCarnivoreReaction(ReactionInfo &);
             ReactionType FetchHerbivoreReaction(ReactionInfo &);
             ReactionType FetchOmnivoreReaction(ReactionInfo &);

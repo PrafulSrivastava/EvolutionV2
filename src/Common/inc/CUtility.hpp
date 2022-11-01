@@ -8,6 +8,7 @@
 #include <memory>
 #include <map>
 #include <SFML/Graphics.hpp>
+#include "ConfigParser.hpp"
 
 // namespace Evolution::Manager
 // {
