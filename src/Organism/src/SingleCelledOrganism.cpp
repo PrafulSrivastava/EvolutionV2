@@ -4,7 +4,7 @@
 
 namespace Evolution::Organism
 {
-    SingleCelledOrganism::SingleCelledOrganism(Organism::OrganismType type)
+    SingleCelledOrganism::SingleCelledOrganism(Organism::SpeciesType type)
     {
         m_species = Species::SingleCelledOrganism;
         m_attributes = std::make_shared<Attributes>(CUtility::GenerateRandomAttributes(type));

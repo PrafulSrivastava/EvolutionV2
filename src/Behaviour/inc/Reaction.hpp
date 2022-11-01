@@ -24,7 +24,7 @@ namespace Evolution
         public:
             static Reaction &GetInstance();
             ReactionType FetchReaction(ReactionInfo &);
-            std::vector<Movement::MovementOperation> React(Evolution::Organism::OrganismType, Behaviour::ReactionType);
+            std::vector<Movement::MovementOperation> React(Evolution::Organism::SpeciesType, Behaviour::ReactionType);
 
         private:
             Reaction() = default;

@@ -8,16 +8,6 @@
 
 namespace Evolution::Manager
 {
-
-    struct MovementInfo
-    {
-        Evolution::Movement::MovementType type;
-        NFResolution16 steps;
-        Utility::Hemisphere hemisphere;
-        Utility::Quadrant quadrant;
-        Manager::EntityId target{Manager::InvalidEntityId};
-    };
-
     class IMovement
     {
     public:
@@ -27,6 +17,11 @@ namespace Evolution::Manager
         virtual void UnRegisterToMove(Evolution::Manager::EntityId) = 0;
         virtual void Move() = 0;
         virtual void MoveToPoint(sf::Vector2f) = 0;
+        virtual std::string ToString(const Evolution::Manager::EntityId &id) = 0;
+
+    protected:
+        std::unordered_map<Evolution::Manager::EntityId, Evolution::Movement::MovementInfo> m_organismsMovementInfo;
+        std::vector<std::pair<Evolution::Manager::EntityId, Evolution::Manager::EntityId>> m_unregisteredList;
     };
 }
 

@@ -3,7 +3,7 @@
 
 namespace Evolution::Behaviour
 {
-    BehaviourHandler::BehaviourHandler(Organism::OrganismType type)
+    BehaviourHandler::BehaviourHandler(Organism::SpeciesType type)
     {
         m_type = type;
     }
@@ -17,7 +17,7 @@ namespace Evolution::Behaviour
 
             Log(Log::DEBUG, "New POI :", m_mostPriorityTarget, "for :", m_orgId, pEnum(reaction));
 
-            Movement::MovementAttribute operations = {Reaction::GetInstance().React(m_type, reaction), m_mostPriorityTarget};
+            Movement::TargetMovementInfo operations = {Reaction::GetInstance().React(m_type, reaction), m_mostPriorityTarget};
             m_reactionCb(operations);
             m_hasNewPoi = false;
         }

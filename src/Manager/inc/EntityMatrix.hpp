@@ -27,21 +27,24 @@ namespace Evolution::Manager
         void RemoveTargetEncounteredInfo(const EntityId &, const EntityId &);
         EntityId CalculateMostPriorityTarget(const Evolution::Manager::EntityId &);
 
-        EntityId AddEntity(std::shared_ptr<Evolution::Organism::IOrganismEntity>);
-        std::shared_ptr<Evolution::Organism::IOrganismEntity> GetEntity(const EntityId &);
+        EntityId AddEntity(std::shared_ptr<Evolution::CEntityWrapper<sf::CircleShape>>);
+        std::shared_ptr<Evolution::CEntityWrapper<sf::CircleShape>> GetEntity(const EntityId &);
         void RemoveEntity(const EntityId &);
         void ResetPriority(const EntityId &, const EntityId &);
         Priority GetPriority(const EntityId &, const EntityId &);
         std::unordered_map<EntityId, std::unordered_map<EntityId, Priority>> GetEntityMatrix();
+        void FlipVisionInfo();
         void RunMainLoop();
 
     private:
         std::unordered_map<EntityId, std::unordered_map<EntityId, Priority>> m_entityMatrix;
-        std::unordered_map<EntityId, std::shared_ptr<Evolution::Organism::IOrganismEntity>> m_organismList;
+        std::unordered_map<EntityId, std::shared_ptr<Evolution::CEntityWrapper<sf::CircleShape>>> m_organismList;
         EntityId m_entityId{-1};
 
         Priority FetchPriority(const EntityId &, const EntityId &);
         std::shared_ptr<sf::RenderWindow> m_window;
+        std::shared_ptr<sf::RenderWindow> m_debugWindow;
+        bool m_isVisionInfoOn{false};
     };
 }
 

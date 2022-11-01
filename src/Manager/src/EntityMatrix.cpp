@@ -7,7 +7,7 @@ namespace Evolution::Manager
     {
     }
 
-    EntityId EntityMatrix::AddEntity(std::shared_ptr<Evolution::Organism::IOrganismEntity> org)
+    EntityId EntityMatrix::AddEntity(std::shared_ptr<Evolution::CEntityWrapper<sf::CircleShape>> org)
     {
         m_entityMatrix[++m_entityId];
         m_organismList[m_entityId] = org;
@@ -59,28 +59,38 @@ namespace Evolution::Manager
         return idMax;
     }
 
-    std::shared_ptr<Evolution::Organism::IOrganismEntity> EntityMatrix::GetEntity(const EntityId &id)
+    std::shared_ptr<Evolution::CEntityWrapper<sf::CircleShape>> EntityMatrix::GetEntity(const EntityId &id)
     {
+
+        Debug(if (m_organismList.find(id) == m_organismList.end()) {
+            return nullptr;
+        });
+
         return m_organismList[id];
     }
 
-    void EntityMatrix::RemoveEntity(const EntityId &org)
+    void EntityMatrix::RemoveEntity(const EntityId &id)
     {
-        m_entityMatrix.erase(org);
+        m_entityMatrix.erase(id);
 
         for (auto &item : m_entityMatrix)
         {
-            auto itorg = item.second.find(org);
+            auto itorg = item.second.find(id);
             if (itorg != item.second.end())
             {
                 item.second.erase(itorg);
             }
         }
 
-        auto itorg = m_organismList.find(org);
+        auto itorg = m_organismList.find(id);
         if (itorg != m_organismList.end())
         {
             m_organismList.erase(itorg);
+        }
+
+        for (auto &org : m_organismList)
+        {
+            org.second->RemoveIfNotInVision(id);
         }
     }
 
@@ -101,8 +111,7 @@ namespace Evolution::Manager
         itorg->second.erase(target);
     }
 
-    Priority
-    EntityMatrix::FetchPriority(const EntityId &org, const EntityId &target)
+    Priority EntityMatrix::FetchPriority(const EntityId &org, const EntityId &target)
     {
         Priority priority{0}, typePriority{0};
 
@@ -118,19 +127,32 @@ namespace Evolution::Manager
         {
             switch (targetInfo->type)
             {
-            case Organism::OrganismType::CARNIVORE:
+
+            case Organism::SpeciesType::CARNIVORE:
             {
                 typePriority += 100;
                 break;
             }
 
-            case Organism::OrganismType::HERBIVORE:
+            case Organism::SpeciesType::POI:
+            {
+                if (targetInfo->subType == Organism::SpeciesSubType::VEGETATION)
+                {
+                    if (orgInfo->type != Organism::SpeciesType::CARNIVORE)
+                    {
+                        typePriority += 70;
+                    }
+                }
+                break;
+            }
+
+            case Organism::SpeciesType::HERBIVORE:
             {
                 typePriority += 100;
                 break;
             }
 
-            case Organism::OrganismType::OMNIVORE:
+            case Organism::SpeciesType::OMNIVORE:
             {
                 typePriority += 50;
                 break;
@@ -141,8 +163,25 @@ namespace Evolution::Manager
             }
         }
 
-        priority += 0.35 * (dAggression + dEnergy) + 0.15 * (dSpeed + dStamina);
-        priority += (0.5 * priority + 0.5 * (typePriority));
+        Log(Log::DEBUG, __func__, "Org:", org, "Type:", pEnum(orgInfo->type));
+        Log(Log::DEBUG, __func__, "Target:", target, "Type:", pEnum(targetInfo->type));
+        Log(Log::DEBUG, __func__, "Type Priority:", typePriority);
+
+        // Threat offset
+        if (targetInfo->type != Organism::SpeciesType::POI)
+        {
+            priority += 0.35 * (dAggression + dEnergy) + 0.15 * (dSpeed + dStamina);
+        }
+        else if (targetInfo->subType == Organism::SpeciesSubType::VEGETATION && orgInfo->type != Organism::SpeciesType::CARNIVORE)
+        {
+            priority += 0.5 * (dEnergy + dStamina);
+        }
+
+        Log(Log::DEBUG, __func__, "Initial Priority:", priority);
+
+        priority = 0.5 * priority + 0.5 * typePriority;
+
+        Log(Log::DEBUG, __func__, "Priority:", priority);
 
         return priority;
     }
@@ -157,6 +196,11 @@ namespace Evolution::Manager
         return m_entityMatrix;
     }
 
+    void EntityMatrix::FlipVisionInfo()
+    {
+        m_isVisionInfoOn = !m_isVisionInfoOn;
+    }
+
     void EntityMatrix::RunMainLoop()
     {
         for (auto org : m_organismList)
@@ -164,10 +208,11 @@ namespace Evolution::Manager
             org.second->RunMainLoop();
             m_window->draw(*org.second);
 
-#ifdef DEBUG_MODE
-            CUtility::ShowVisionInfo(org.second->GetAttributes()->visionDepth, org.second->GetAttributes()->visionConeAngle, org.second->getPosition(), org.second->getRotation());
-            CUtility::AddLabels(org.second->GetAttributes()->label, org.second->getPosition());
-#endif
+            if (m_isVisionInfoOn)
+            {
+                Debug(CUtility::ShowVisionInfo(org.second->GetAttributes()->visionDepth, org.second->GetAttributes()->visionConeAngle, org.second->getPosition(), org.second->getRotation());
+                      CUtility::AddLabels(org.second->GetAttributes()->label, org.second->getPosition()));
+            }
         }
     }
 

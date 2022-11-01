@@ -9,7 +9,7 @@ namespace Evolution::Manager
     }
     Evolution::Manager::EntityId Movement::RegisterToMove(Evolution::Manager::EntityId orgId, Evolution::Movement::MovementType type)
     {
-        MovementInfo info;
+        Evolution::Movement::MovementInfo info;
         info.type = type;
         info.steps = 0;
         info.hemisphere = Utility::Hemisphere::UPPER;
@@ -145,10 +145,10 @@ namespace Evolution::Manager
         if (info.steps <= 0)
         {
             entity->setRotation(GetRandomDirectionForEntity(id));
-            if (entity->getFillColor() == sf::Color::White)
-            {
-                entity->setFillColor(sf::Color::Green);
-            }
+            // if (entity->getFillColor() == sf::Color::White)
+            // {
+            //     entity->setFillColor(sf::Color::Blue);
+            // }
         }
 
         entity->setPosition(GetNewPosition(entity->getRotation(), attributes->speed, entity->getPosition()));
@@ -189,8 +189,6 @@ namespace Evolution::Manager
         auto &info = m_organismsMovementInfo[orgid];
 
         auto org = m_matrix->GetEntity(orgid);
-
-        org->setFillColor(sf::Color::Magenta);
         auto attributes = org->GetAttributes();
 
         if (m_matrix->GetEntityMatrix().find(targetid) != m_matrix->GetEntityMatrix().end())
@@ -199,35 +197,32 @@ namespace Evolution::Manager
 
             if (CUtility::GetDistanceBetweenPoints(org->getPosition(), target->getPosition()) > attributes->visionDepth / 8)
             {
-
-                // org->setPosition(GetNewPosition(target->getRotation(), attributes->speed, org->getPosition()));
+                org->setRotation(CUtility::GetAngleBetweenPoits(org->getPosition(), target->getPosition()));
                 org->setPosition(Interpolate(org->getPosition(), target->getPosition(), attributes->speed));
             }
 
             else
             {
-                Log(Log::INFO, orgid, "Killed", targetid);
-
-                org->setFillColor(sf::Color::Red);
+                Log(Log::DEBUG, orgid, "Killed", targetid);
                 m_unregisteredList.push_back({orgid, targetid});
                 info.type = Evolution::Movement::MovementType::Randomly;
             }
+
             info.steps -= Utility::StepReductionFactor;
+
             if (info.steps <= 0)
             {
-                org->setFillColor(sf::Color::Red);
                 info.type = Evolution::Movement::MovementType::Randomly;
             }
         }
         else
         {
+            info.type = Evolution::Movement::MovementType::Randomly;
         }
     }
 
     void Movement::UpdateMovementOperation(const Evolution::Manager::EntityId &orgid, const Evolution::Manager::EntityId &targetid, Evolution::Movement::MovementOperation operation)
     {
-        Log(Log::DEBUG, "\t", pEnum(operation));
-
         auto org = m_matrix->GetEntity(orgid);
         switch (operation)
         {
@@ -265,7 +260,7 @@ namespace Evolution::Manager
             org->setFillColor(sf::Color::Yellow);
             break;
         case Evolution::Movement::MovementOperation::ChangeMotionToRun:
-            org->setFillColor(sf::Color::White);
+            // org->setFillColor(sf::Color::White);
             m_organismsMovementInfo[orgid].steps += 100;
             break;
         }
