@@ -3,12 +3,12 @@
   "LoggingLevel": 4,
   "LoggingType": "Console",
   "LogFilePath": "../config/log.txt",
-  "CarnivoreCount": 50,
+  "CarnivoreCount": 1,
   "CarnivoreSpawnColor": "Red",
-  "HerbivoreCount": 250,
+  "HerbivoreCount": 1,
   "HerbivoreSpawnColor": "Blue",
   "OmnivoreCount": 0,
   "OmnivoreSpawnColor": "Yellow",
-  "HerbCount": 50,
+  "HerbCount": 1,
   "HerbSpawnColor": "Green"
 }

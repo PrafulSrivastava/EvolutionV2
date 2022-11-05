@@ -94,13 +94,17 @@ namespace Evolution::Manager
     void Manager::RunMainLoop()
     {
         // Life Timer
-        UpdateLifeTime();
 
         for (auto i : m_matrix->GetEntityMatrix())
         {
+            if (m_matrix->GetEntity(i.first)->GetAttributes()->type == Organism::SpeciesType::POI)
+            {
+                continue;
+            }
+
             for (auto j : m_matrix->GetEntityMatrix())
             {
-                if (i.first == j.first || m_matrix->GetEntity(i.first)->GetAttributes()->type == Organism::SpeciesType::POI)
+                if (i.first == j.first)
                 {
                     continue;
                 }
@@ -131,24 +135,48 @@ namespace Evolution::Manager
         }
     }
 
-    void Manager::Age()
-    {
-        m_Aged = true;
-    }
-
     void Manager::UpdateLifeTime()
     {
-        if (m_Aged)
+        for (auto i : m_matrix->GetEntityMatrix())
         {
-            m_Aged = false;
-            for (auto i : m_matrix->GetEntityMatrix())
-            {
-                m_matrix->GetEntity(i.first)->GetAttributes()->UpdateLifeSpan();
+            m_matrix->GetEntity(i.first)->GetAttributes()->UpdateLifeSpan();
 
-                if (m_matrix->GetEntity(i.first)->GetAttributes()->energy <= 0)
+            if (m_matrix->GetEntity(i.first)->GetAttributes()->energy <= 0)
+            {
+                m_movement->UnRegisterToMove(i.first);
+                m_matrix->RemoveEntity(i.first);
+            }
+        }
+    }
+
+    void Manager::Reproduce()
+    {
+        FuncName;
+        for (auto i : m_matrix->GetEntityMatrix())
+        {
+            auto reproductionProbablity = CUtility::GetProbability();
+            if (reproductionProbablity >= 70 && m_matrix->GetEntity(i.first)->GetAttributes()->energy > 10)
+            {
+                std::shared_ptr<Evolution::Organism::IOrganismEntity> org{};
+                switch (m_matrix->GetEntity(i.first)->GetAttributes()->type)
                 {
-                    m_movement->UnRegisterToMove(i.first);
-                    m_matrix->RemoveEntity(i.first);
+                case Organism::SpeciesType::CARNIVORE:
+                    org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::SpeciesType::CARNIVORE);
+                    AddEntity(org);
+                    break;
+                case Organism::SpeciesType::HERBIVORE:
+                    org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::SpeciesType::HERBIVORE);
+                    AddEntity(org);
+                    break;
+                case Organism::SpeciesType::OMNIVORE:
+                    org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::SpeciesType::OMNIVORE);
+                    AddEntity(org);
+                    break;
+                }
+
+                if (org != nullptr)
+                {
+                    org->setPosition(m_matrix->GetEntity(i.first)->getPosition());
                 }
             }
         }
@@ -158,13 +186,10 @@ namespace Evolution::Manager
     {
         FuncName;
 
-        // sf::Event m_event;
-        uint8_t tempVal = 0;
-        m_startTime = std::chrono::system_clock::now();
-
         m_window->setFramerateLimit(Utility::FrameLimit);
         // lifetime registration
-        auto timerId = m_timer->Register(1, std::bind(&Manager::Age, this), 1);
+        auto lifeTimerId = m_timer->Register(1, std::bind(&Manager::UpdateLifeTime, this), 1);
+        auto reproductionTimerId = m_timer->Register(5, std::bind(&Manager::Reproduce, this), 1);
 
         NFResolution16 debugTarget{0};
 
@@ -233,7 +258,8 @@ namespace Evolution::Manager
                   m_debugWindow->display());
         }
 
-        m_timer->DeRegister(timerId);
+        m_timer->DeRegister(lifeTimerId);
+        m_timer->DeRegister(reproductionTimerId);
         m_timer->Stop();
         m_timer.reset();
     }
@@ -242,7 +268,6 @@ namespace Evolution::Manager
     {
         Log(Log::DEBUG, __func__);
 
-        uint8_t tempVal = 0;
         m_debugWindow->setFramerateLimit(Utility::FrameLimit);
 
         while (nullptr != m_debugWindow && m_debugWindow->isOpen())

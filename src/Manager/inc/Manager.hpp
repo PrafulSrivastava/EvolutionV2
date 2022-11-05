@@ -36,9 +36,8 @@ namespace Evolution::Manager
         bool IsInVision(EntityId viewer, EntityId viewee);
         bool HasCollided(EntityId viewer, EntityId viewee);
         void UpdateLifeTime();
-        void Age();
+        void Reproduce();
 
-        bool m_Aged{false};
         std::shared_ptr<IMovement> m_movement{nullptr};
         std::shared_ptr<EntityMatrix> m_matrix{nullptr};
         std::shared_ptr<std::thread> m_debugThread;
