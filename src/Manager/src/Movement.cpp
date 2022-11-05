@@ -35,8 +35,6 @@ namespace Evolution::Manager
 
     void Movement::Move()
     {
-        Log(Log::VERBOSE, __func__, 23);
-
         for (auto &org : m_organismsMovementInfo)
         {
             auto movementAttr = m_matrix->GetEntity(org.first)->FetchMovementOperations();
@@ -203,7 +201,13 @@ namespace Evolution::Manager
 
             else
             {
-                Log(Log::DEBUG, orgid, "Killed", targetid);
+                Log(Log::INFO, orgid, "Killed", targetid);
+
+                // TODO: Need to move to function
+                m_matrix->GetEntity(orgid)->GetAttributes()->energy += m_matrix->GetEntity(targetid)->GetAttributes()->energy;
+                if (m_matrix->GetEntity(orgid)->GetAttributes()->energy > 100)
+                    m_matrix->GetEntity(orgid)->GetAttributes()->energy = 100;
+
                 m_unregisteredList.push_back({orgid, targetid});
                 info.type = Evolution::Movement::MovementType::Randomly;
             }

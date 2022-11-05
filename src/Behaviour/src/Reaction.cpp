@@ -39,51 +39,81 @@ namespace Evolution
             return react;
         }
 
-        ReactionType Reaction::FetchCarnivoreReaction(ReactionInfo &reactInfo)
+        Resolution Reaction::GetCapability(std::shared_ptr<Evolution::Organism::Attributes> attr)
         {
-            ReactionType reaction = ReactionType::INVALID;
+            return 0.4 * (attr->aggression + attr->energy) + 0.6 * (attr->speed + attr->stamina);
+        }
 
-            switch (reactInfo.target->type)
+        bool Reaction::AmICapable(ReactionInfo &reactInfo)
+        {
+            bool response = false;
+
+            if (GetCapability(reactInfo.org) > GetCapability(reactInfo.target))
             {
-            case Organism::SpeciesType::HERBIVORE:
-                reaction = ReactionType::KILL;
-                break;
-            case Organism::SpeciesType::CARNIVORE:
-                reaction = ReactionType::IGNORE;
-                break;
-            case Organism::SpeciesType::OMNIVORE:
-                reaction = ReactionType::FIGHT;
-                break;
-            case Organism::SpeciesType::POI:
-                reaction = ReactionType::IGNORE;
-                break;
+                response = true;
             }
 
-            if (reactInfo.reaction == ReactionType::KILL)
+            return response;
+        }
+
+        ReactionType Reaction::FetchCarnivoreReaction(ReactionInfo &reactInfo)
+        {
+            ReactionType reaction = ReactionType::IGNORE;
+
+            if (reactInfo.target->subType == Organism::SpeciesSubType::VEGETATION)
             {
-                if (reactInfo.priority >= Organism::MinPriorityToFight)
+                return reaction;
+            }
+
+            bool capable = AmICapable(reactInfo);
+            switch (reactInfo.org->state)
+            {
+            case Organism::EnergyBand::LOW:
+            {
+                // Desperate to increase health
+                if (capable)
                 {
-                    if (reactInfo.target->aggression <= Organism::MinThresholdAggression)
-                    {
-                        reaction = ReactionType::FIGHT;
-                    }
+                    // reaction = ReactionType::CONSUME;
+                    reaction = ReactionType::KILL;
                 }
                 else
                 {
-                    reaction = ReactionType::IGNORE;
+                    if (reactInfo.targetReaction == ReactionType::KILL)
+                        reaction = ReactionType::RUN;
+                }
+
+                break;
+            }
+            case Organism::EnergyBand::MEDIUM:
+            {
+                if (reactInfo.targetReaction != ReactionType::KILL)
+                {
+                    if (capable)
+                    {
+                        reaction = ReactionType::KILL;
+                    }
                 }
             }
-
-            // Desperate to increase health
-            else if (reactInfo.target->energy <= Organism::MinThresholdEnergy && reactInfo.target->type != Organism::SpeciesType::POI)
+            case Organism::EnergyBand::HIGH:
             {
-                // reaction = ReactionType::EAT;
-                reaction = ReactionType::KILL;
+                // if target seen is coming towards you to kill
+                if (reactInfo.targetReaction == ReactionType::KILL)
+                {
+                    if (capable)
+                    {
+                        reaction = ReactionType::FIGHT;
+                    }
+                    else
+                    {
+                        reaction = ReactionType::RUN;
+                    }
+                }
+
+                break;
             }
-
-            else if (reactInfo.target->energy >= Organism::MaxThresholdEnergy)
-            {
+            default:
                 reaction = ReactionType::IGNORE;
+                break;
             }
 
             return reaction;
@@ -91,7 +121,9 @@ namespace Evolution
 
         ReactionType Reaction::FetchHerbivoreReaction(ReactionInfo &reactInfo)
         {
-            ReactionType reaction = ReactionType::INVALID;
+            ReactionType reaction = ReactionType::IGNORE;
+
+            bool capable = AmICapable(reactInfo);
 
             switch (reactInfo.target->type)
             {
@@ -99,29 +131,36 @@ namespace Evolution
                 reaction = ReactionType::GROUP;
                 break;
             case Organism::SpeciesType::CARNIVORE:
-                reaction = ReactionType::RUN;
-                break;
             case Organism::SpeciesType::OMNIVORE:
-                reaction = ReactionType::FIGHT;
-                break;
-            case Organism::SpeciesType::POI:
-                reaction = ReactionType::KILL;
-                break;
-            }
-
-            if (reactInfo.reaction == ReactionType::RUN)
             {
-                if (reactInfo.priority >= Organism::MinPriorityToFight)
+                if (reactInfo.targetReaction == ReactionType::KILL)
                 {
-                    if (reactInfo.target->aggression >= Organism::MinThresholdAggression)
-                    {
-                        reaction = ReactionType::KILL;
-                    }
-                    else
+                    if (capable)
                     {
                         reaction = ReactionType::FIGHT;
                     }
+                    else
+                    {
+                        reaction = ReactionType::RUN;
+                    }
                 }
+                else
+                {
+                    if (capable)
+                    {
+                        reaction = ReactionType::IGNORE;
+                    }
+                    else
+                    {
+                        reaction = ReactionType::RUN;
+                    }
+                }
+                break;
+            }
+            case Organism::SpeciesType::POI:
+                if (reactInfo.org->state != Organism::EnergyBand::HIGH)
+                    reaction = ReactionType::KILL;
+                break;
             }
 
             return reaction;

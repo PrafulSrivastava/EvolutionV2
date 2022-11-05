@@ -11,6 +11,7 @@
 #include <thread>
 #include "EntityMatrix.hpp"
 #include "Logger.hpp"
+#include "Timer.hpp"
 
 namespace Evolution::Manager
 {
@@ -34,11 +35,16 @@ namespace Evolution::Manager
     private:
         bool IsInVision(EntityId viewer, EntityId viewee);
         bool HasCollided(EntityId viewer, EntityId viewee);
+        void UpdateLifeTime();
+        void Reproduce();
+
         std::shared_ptr<IMovement> m_movement{nullptr};
         std::shared_ptr<EntityMatrix> m_matrix{nullptr};
         std::shared_ptr<std::thread> m_debugThread;
         sf::Event m_event;
         std::mutex m_mtx;
+        std::chrono::time_point<std::chrono::system_clock> m_startTime, m_spanTime;
+        std::shared_ptr<Timer<std::chrono::seconds>> m_timer;
     };
 }
 

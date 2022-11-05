@@ -25,8 +25,11 @@ namespace Evolution
         Organism::Attributes attributes;
         attributes.energy = GetRandomValueInRange(Organism::MinSpawnEnergy, Organism::MaxSpawnEnergy);
         attributes.speed = GetRandomValueInRange(Organism::MinSpawnSpeed, Organism::MaxSpawnSpeed);
+        attributes.speedbackup = attributes.speed;
         attributes.stamina = GetRandomValueInRange(Organism::MinSpawnStamina, Organism::MaxSpawnStamina);
+        attributes.staminabackup = attributes.stamina;
         attributes.aggression = GetRandomValueInRange(Organism::MinSpawnAggression, Organism::MaxSpawnAggression);
+        attributes.aggressionbackup = attributes.aggression;
         attributes.visionConeAngle = GetRandomValueInRange(Organism::MinSpawnConeAngle, Organism::MaxSpawnConeAngle);
         // attributes.visionConeAngle = 360;
         attributes.visionDepth = GetRandomValueInRange(Organism::MinSpawnConeDepth, Organism::MaxSpawnConeDepth);
@@ -136,25 +139,25 @@ namespace Evolution
         {
         case Organism::SpeciesType::CARNIVORE:
         {
-            entity.setFillColor(Organism::CarnivoreSpawnColor);
+            entity.setFillColor(Utility::ConfigParser::GetInstance().GetCarnivoreSpawnColor());
             break;
         }
 
         case Organism::SpeciesType::HERBIVORE:
         {
-            entity.setFillColor(Organism::HerbivoreSpawnColor);
+            entity.setFillColor(Utility::ConfigParser::GetInstance().GetHerbivoreSpawnColor());
             break;
         }
 
         case Organism::SpeciesType::OMNIVORE:
         {
-            entity.setFillColor(Organism::OmnivoreSpawnColor);
+            entity.setFillColor(Utility::ConfigParser::GetInstance().GetOmnivoreSpawnColor());
             break;
         }
 
         case Organism::SpeciesType::POI:
         {
-            entity.setFillColor(Organism::HerbsSpawnColor);
+            entity.setFillColor(Utility::ConfigParser::GetInstance().GetHerbSpawnColor());
             break;
         }
 
@@ -342,7 +345,7 @@ namespace Evolution
         RegisterEnum<ReactionType>(ReactionType::IGNORE, "IGNORE");
         RegisterEnum<ReactionType>(ReactionType::KILL, "KILL");
         RegisterEnum<ReactionType>(ReactionType::RUN, "RUN");
-        RegisterEnum<ReactionType>(ReactionType::EAT, "EAT");
+        RegisterEnum<ReactionType>(ReactionType::CONSUME, "EAT");
     }
 
     bool CUtility::IsInCircumference(CEntityWrapper<sf::CircleShape> &entity, sf::Vector2f point)

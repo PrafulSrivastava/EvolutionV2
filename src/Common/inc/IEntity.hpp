@@ -48,7 +48,7 @@ namespace Evolution
         virtual void SetMostPriorityTarget(Manager::EntityId index) {}
         virtual void OnReaction(Movement::TargetMovementInfo operations) {}
         virtual void SetCurrentPos(sf::Vector2f pos) {}
-        virtual std::string ToString() {}
+        virtual std::string ToString() { return {}; }
         virtual Movement::TargetMovementInfo FetchMovementOperations() { return Movement::TargetMovementInfo(); };
 
         Species GetSpecies()

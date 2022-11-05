@@ -16,6 +16,8 @@ namespace Evolution::Manager
         m_window = std::make_shared<sf::RenderWindow>(
             sf::VideoMode(Evolution::Utility::Width, Evolution::Utility::Height), Evolution::Utility::WindowName);
 
+        m_timer = std::make_shared<Timer<std::chrono::seconds>>();
+
         CUtility::RegisterAllEnums();
         m_matrix = std::make_shared<EntityMatrix>(m_window);
         m_movement = std::make_shared<Movement>(m_matrix);
@@ -53,23 +55,23 @@ namespace Evolution::Manager
 
     void Manager::Init()
     {
-        for (int i = 0; i < CarnivoreCount; i++)
+        for (int i = 0; i < Evolution::Utility::ConfigParser::GetInstance().GetCarnivoreCount(); i++)
         {
             std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::SpeciesType::CARNIVORE);
             AddEntity(org);
         }
-        for (int i = 0; i < HerbivoreCount; i++)
+        for (int i = 0; i < Evolution::Utility::ConfigParser::GetInstance().GetHerbivoreCount(); i++)
         {
             std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::SpeciesType::HERBIVORE);
             AddEntity(org);
         }
-        for (int i = 0; i < OmnivoreCount; i++)
+        for (int i = 0; i < Evolution::Utility::ConfigParser::GetInstance().GetOmnivoreCount(); i++)
         {
             std::shared_ptr<Evolution::Organism::IOrganismEntity> org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::SpeciesType::OMNIVORE);
             AddEntity(org);
         }
 
-        for (int i = 0; i < HerbCount; i++)
+        for (int i = 0; i < Evolution::Utility::ConfigParser::GetInstance().GetHerbCount(); i++)
         {
             std::shared_ptr<Evolution::PointOfInterest::IPointOfInterestEntity> poi = std::make_shared<Evolution::PointOfInterest::Herb>(Organism::SpeciesType::POI);
             AddEntity(poi);
@@ -91,11 +93,18 @@ namespace Evolution::Manager
 
     void Manager::RunMainLoop()
     {
+        // Life Timer
+
         for (auto i : m_matrix->GetEntityMatrix())
         {
+            if (m_matrix->GetEntity(i.first)->GetAttributes()->type == Organism::SpeciesType::POI)
+            {
+                continue;
+            }
+
             for (auto j : m_matrix->GetEntityMatrix())
             {
-                if (i.first == j.first || m_matrix->GetEntity(i.first)->GetAttributes()->type == Organism::SpeciesType::POI)
+                if (i.first == j.first)
                 {
                     continue;
                 }
@@ -126,13 +135,62 @@ namespace Evolution::Manager
         }
     }
 
+    void Manager::UpdateLifeTime()
+    {
+        for (auto i : m_matrix->GetEntityMatrix())
+        {
+            m_matrix->GetEntity(i.first)->GetAttributes()->UpdateLifeSpan();
+
+            if (m_matrix->GetEntity(i.first)->GetAttributes()->energy <= 0)
+            {
+                m_movement->UnRegisterToMove(i.first);
+                m_matrix->RemoveEntity(i.first);
+            }
+        }
+    }
+
+    void Manager::Reproduce()
+    {
+        FuncName;
+        for (auto i : m_matrix->GetEntityMatrix())
+        {
+            auto reproductionProbablity = CUtility::GetProbability();
+            if (reproductionProbablity >= 70 && m_matrix->GetEntity(i.first)->GetAttributes()->energy > 10)
+            {
+                std::shared_ptr<Evolution::Organism::IOrganismEntity> org{};
+                switch (m_matrix->GetEntity(i.first)->GetAttributes()->type)
+                {
+                case Organism::SpeciesType::CARNIVORE:
+                    org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::SpeciesType::CARNIVORE);
+                    AddEntity(org);
+                    break;
+                case Organism::SpeciesType::HERBIVORE:
+                    org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::SpeciesType::HERBIVORE);
+                    AddEntity(org);
+                    break;
+                case Organism::SpeciesType::OMNIVORE:
+                    org = std::make_shared<Evolution::Organism::SingleCelledOrganism>(Organism::SpeciesType::OMNIVORE);
+                    AddEntity(org);
+                    break;
+                }
+
+                if (org != nullptr)
+                {
+                    org->setPosition(m_matrix->GetEntity(i.first)->getPosition());
+                }
+            }
+        }
+    }
+
     void Manager::RunGameLoop()
     {
-        Log(Log::DEBUG, __func__);
+        FuncName;
 
-        // sf::Event m_event;
-        uint8_t tempVal = 0;
         m_window->setFramerateLimit(Utility::FrameLimit);
+        // lifetime registration
+        auto lifeTimerId = m_timer->Register(1, std::bind(&Manager::UpdateLifeTime, this), 1);
+        auto reproductionTimerId = m_timer->Register(5, std::bind(&Manager::Reproduce, this), 1);
+
         NFResolution16 debugTarget{0};
 
         while (m_window->isOpen())
@@ -148,6 +206,7 @@ namespace Evolution::Manager
                     {
                         m_window->close();
                         Debug(m_debugWindow->close());
+                        m_debugWindow.reset();
                     }
                     if (m_event.type == sf::Event::KeyPressed)
                     {
@@ -155,6 +214,7 @@ namespace Evolution::Manager
                         {
                             m_window->close();
                             Debug(m_debugWindow->close());
+                            m_debugWindow.reset();
                         }
 
                         Debug(
@@ -197,20 +257,24 @@ namespace Evolution::Manager
                   } CUtility::DisplayEntityStats(m_matrix->GetEntity(debugTarget), m_movement->ToString(debugTarget));
                   m_debugWindow->display());
         }
+
+        m_timer->DeRegister(lifeTimerId);
+        m_timer->DeRegister(reproductionTimerId);
+        m_timer->Stop();
+        m_timer.reset();
     }
 
     void Manager::RunGameDebugLoop()
     {
         Log(Log::DEBUG, __func__);
 
-        uint8_t tempVal = 0;
         m_debugWindow->setFramerateLimit(Utility::FrameLimit);
 
-        while (m_debugWindow->isOpen())
+        while (nullptr != m_debugWindow && m_debugWindow->isOpen())
         {
             std::lock_guard<std::mutex> lck(m_mtx);
             {
-                while (m_debugWindow->pollEvent(m_event))
+                while (nullptr != m_debugWindow && m_debugWindow->pollEvent(m_event))
                 {
                     if (m_event.type == sf::Event::Closed)
                     {

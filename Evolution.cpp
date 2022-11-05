@@ -15,7 +15,6 @@ int main()
     if (ConfigParser::GetInstance().LoggingType() == "File")
     {
         fs.open(ConfigParser::GetInstance().LogFilePath());
-
         Logger::init<std::ofstream>(ConfigParser::GetInstance().LoggingLevel(), &fs);
     }
     else if (ConfigParser::GetInstance().LoggingType() == "Console")

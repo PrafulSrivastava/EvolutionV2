@@ -1,5 +1,5 @@
-#ifndef PMG_LOGGER_HPP
-#define PMG_LOGGER_HPP
+#ifndef LOGGER_HPP
+#define LOGGER_HPP
 
 #include <iostream>
 #include <fstream>

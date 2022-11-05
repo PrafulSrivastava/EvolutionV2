@@ -2,5 +2,13 @@
   "Version": 1.0,
   "LoggingLevel": 4,
   "LoggingType": "Console",
-  "LogFilePath": "/home/srivpra/ProjectTrial/EvolutionV2/EvolutionV2/config/log.txt"
+  "LogFilePath": "../config/log.txt",
+  "CarnivoreCount": 1,
+  "CarnivoreSpawnColor": "Red",
+  "HerbivoreCount": 1,
+  "HerbivoreSpawnColor": "Blue",
+  "OmnivoreCount": 0,
+  "OmnivoreSpawnColor": "Yellow",
+  "HerbCount": 1,
+  "HerbSpawnColor": "Green"
 }
